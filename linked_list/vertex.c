@@ -1,0 +1,81 @@
+//
+// Created by vitor on 08/11/23.
+//
+
+#include "vertex.h"
+#include "../memory/memory.h"
+
+Vertex *create_vertex(void *dado, Vertex *next){
+
+    Vertex *new = me_memory_alloc(NULL, sizeof(Vertex));
+    new->data = dado;
+    new->next = next;
+    return new;
+}
+
+Vertex *destroy_vertex(Vertex *self){
+    self->next = NULL;
+    self->data = NULL;
+    me_free_memory((void *)&self);
+    return NULL;
+}
+Vertex *vt_get_next(Vertex *self){
+    return self->next;
+}
+
+int vt_find_element(Vertex *self, void *data, int (*eq)(void *, void *)){
+
+    int index = 0;
+    while (self){
+        if ( eq( self->data, data ) ){
+            return index;
+        }
+        index++;
+        self = vt_get_next(self);
+    }
+    return -1;
+}
+void *vt_get_data(Vertex *self, int index){
+    for (int i = 0; i < index; ++i) {
+        self = vt_get_next(self);
+    }
+    return self->data;
+}
+void *vt_remove_element_lk(Vertex **self, int index){
+
+    Vertex *aux = *self;
+    Vertex *element_removed;
+    void *dado;
+    if ( index == 0 ){
+        element_removed = *self;
+        *self = vt_get_next(*self);
+        dado = element_removed->data;
+        element_removed = destroy_vertex(element_removed);
+        return dado;
+    }
+    for (int i = 0; i < index-1; ++i) {
+        aux = vt_get_next(aux);
+    }
+
+    element_removed = vt_get_next(aux);
+    aux->next = vt_get_next(aux->next);
+    dado = aux->data;
+    element_removed = destroy_vertex(element_removed);
+    return dado;
+}
+
+Vertex *vt_add_element(Vertex *self, void *data, int index){
+
+    void *self_cp = self;
+
+    if ( index == 0 ){
+        return create_vertex(data, self->next);
+    }
+
+    for (int i = 0; i < index-1; ++i) {
+        self = vt_get_next(self);
+    }
+    self->next = create_vertex(data, self->next);
+    return self_cp;
+}
+

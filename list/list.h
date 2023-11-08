@@ -13,4 +13,5 @@ int is_void(List *self);
 void* destroy_list(List *self, int quantity_destructors, ...);
 void *get_element_in_list(List *self, int index);
 int get_tam(List *self);
+List *break_str_in_list(char *str, char *tok);
 #endif /* LIST_H */

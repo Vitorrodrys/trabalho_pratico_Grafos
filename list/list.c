@@ -5,6 +5,7 @@
 #include "list.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 #include "../memory/memory.h"
 
 typedef struct List{
@@ -16,7 +17,7 @@ typedef struct List{
 
 List *create_list(){
 
-    List *new = memory_alloc(NULL, sizeof(List));
+    List *new = me_memory_alloc(NULL, sizeof(List));
     new->data = NULL;
     new->current_size = 0;
     return new;
@@ -24,7 +25,7 @@ List *create_list(){
 
 void append(List *self, void *element){
     self->current_size++;
-    self->data = memory_alloc(self->data, sizeof(void *)*self->current_size);
+    self->data = me_memory_alloc(self->data, sizeof(void *)*self->current_size);
     self->data[self->current_size-1] = element;
 }
 void* remove_element(List *self, int index){
@@ -38,7 +39,7 @@ void* remove_element(List *self, int index){
         self->data[index-1] = self->data[index];
     }
     self->current_size--;
-    self->data = memory_alloc(self->data, sizeof (void *) *self->current_size);
+    self->data = me_memory_alloc(self->data, sizeof (void *) *self->current_size);
     return element_remove;
 }
 
@@ -55,7 +56,7 @@ void *pop(List *self){
 
     void *ptr = self->data[self->current_size-1];
     self->current_size--;
-    self->data = memory_alloc(self->data, sizeof (void *)*self->current_size);
+    self->data = me_memory_alloc(self->data, sizeof (void *)*self->current_size);
     return ptr;
 }
 
@@ -79,16 +80,16 @@ void* destroy_list(List *self, int quantity_destructors, ...){
     for (int i = 0; i < quantity_destructors; ++i) {
         f_destructor = va_arg(p, void *);
         if ( f_destructor == NULL ){
-            free_memory(self->data+i);
+            me_free_memory(self->data+i);
         }else
             self->data[i] =  f_destructor(self->data[i]);
 
     }
     va_end(p);
 
-    free_memory((void*)&self->data);
+    me_free_memory((void*)&self->data);
     self->current_size = 0;
-    free_memory((void *)&self);
+    me_free_memory((void *)&self);
     return NULL;
 
 
@@ -107,4 +108,16 @@ int is_void(List *self){
 }
 int get_tam(List *self){
     return self->current_size;
+}
+List *break_str_in_list(char *str, char *tok){
+
+    List *list = create_list();
+
+    char *token = strtok(str, tok);
+
+    while (token){
+        append(list, strdup(token));
+        token = strtok(NULL, tok);
+    }
+    return list;
 }

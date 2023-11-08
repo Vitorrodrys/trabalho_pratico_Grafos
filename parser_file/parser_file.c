@@ -16,7 +16,7 @@ typedef struct current_file{
 
 current_file *create_parser_with_txt(char *str){
 
-    current_file *new = memory_alloc(NULL, sizeof(current_file));
+    current_file *new = me_memory_alloc(NULL, sizeof(current_file));
     new->data = str;
     new->current_char = 0;
     new->tam_file = strlen(str);
@@ -26,24 +26,24 @@ current_file *create_parser_with_txt(char *str){
 
 current_file *create_parser(char *name_file){
 
-    current_file *new = memory_alloc(NULL, sizeof(current_file));
+    current_file *new = me_memory_alloc(NULL, sizeof(current_file));
 
     int fd;
     struct stat file_stat;
 
     fd = open(name_file, O_RDONLY);
     if (fd == -1) {
-        free_memory((void *)&new);
+        me_free_memory((void *)&new);
         return NULL;
     }
 
     if (fstat(fd, &file_stat) == -1) {
-        free_memory((void *)&new);
+        me_free_memory((void *)&new);
         return NULL;
     }
     new->data = mmap(NULL, file_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (new->data == MAP_FAILED) {
-        free_memory((void *)&new);
+        me_free_memory((void *)&new);
         return NULL;
     }
     close(fd);
