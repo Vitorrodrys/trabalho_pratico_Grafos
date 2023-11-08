@@ -4,10 +4,10 @@
 typedef struct Map Map;
 
 int hash(char *string);
-int get_index_key(Map *self, char *key);
+int map_get_index_key(Map *self, char *key);
 Map *create_map(int tam_vector, int (*f_hash)(char *));
-void add_key(Map *self, char *key, void *value);
-void *remove_key(Map *self, char *key);
-void *search_key(Map *self, char *key);
+void map_add_key(Map *self, char *key, void *value);
+void *map_remove_key(Map *self, char *key);
+void *map_search_key(Map *self, char *key);
 
 #endif /* HASH_MAP_H */
