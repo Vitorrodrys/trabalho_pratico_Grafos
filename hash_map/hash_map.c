@@ -45,6 +45,25 @@ void map_add_key(Map *self, char *key, void *value){
     lkl_append(self->vector[index], create_key_value(key, value));
 
 }
+void map_att_key(Map *self, char *key, void *new_value){
+
+    int index = map_get_index_key(self, key);
+    if ( lkl_is_void(self->vector[index]) ){
+        map_add_key(self, key, new_value);
+        return;
+    }
+
+    KeyValue *element = create_key_value(key,NULL );
+    int index_in_list = lkl_get_index_element(self->vector[index], element, (void *) kv_is_this_element);
+
+    if ( index_in_list == -1 ){
+        map_add_key(self, key, new_value);
+        return;
+    }
+    element = destroy_kv(element);
+    element = lkl_get_data(self->vector[index], index_in_list);
+    kv_set_key(element, new_value);
+}
 void* map_remove_key(Map *self, char *key){
 
     int index = map_get_index_key(self, key);
@@ -66,7 +85,7 @@ void* map_remove_key(Map *self, char *key){
 
 }
 
-void *map_search_key(Map *self, char *key){
+void *map_get_key(Map *self, char *key){
 
     int index = map_get_index_key(self, key);
 
