@@ -32,18 +32,18 @@ char *ifa_get_region(InfoAeroports *self){
 
 InfoAeroports *create_info_aeroport(char *str){
 
-    List *list =  break_str_in_list(str, ",");
-    char *cords = get_element_in_list(list,0);
+    List *list =  li_break_str_in_list(str, ",");
+    char *cords = li_get_element_in_list(list,0);
 
-    List *sublist = break_str_in_list(cords, " ");
-    if ( get_tam(sublist) != 4 ){
+    List *sublist = li_break_str_in_list(cords, " ");
+    if ( li_get_tam(sublist) != 4 ){
         return NULL;
     }
     InfoAeroports *new = me_memory_alloc(NULL, sizeof(InfoAeroports));
-    new->x_cord = atoi(get_element_in_list(sublist,1));
-    new->y_cord = atoi(get_element_in_list(sublist, 2));
-    new->name_city = strdup(get_element_in_list(sublist, 3));
-    new->region = strdup(get_element_in_list(list, 1));
+    new->x_cord = atoi(li_get_element_in_list(sublist,1));
+    new->y_cord = atoi(li_get_element_in_list(sublist, 2));
+    new->name_city = strdup(li_get_element_in_list(sublist, 3));
+    new->region = strdup(li_get_element_in_list(list, 1));
     list = destroy_list(list, 2, NULL, NULL);
     sublist=destroy_list(sublist, 4, NULL, NULL, NULL, NULL);
     return new;
@@ -59,54 +59,55 @@ InfoAeroports *destroy_info_aeroports(InfoAeroports *self){
     return NULL;
 }
 
-typedef struct regions{
+typedef struct Regions{
 
 
     Map *aeroports;
     int quantity_aeroports;
-}regions;
+}Regions;
 
-InfoAeroports *ifa_get_info_aeroport(regions *self, char *alias){
+InfoAeroports *ifa_get_info_aeroport(Regions *self, char *alias){
 
-    InfoAeroports *aeroport = map_search_key(self->aeroports, alias);
+    InfoAeroports *aeroport = map_get_key(self->aeroports, alias);
     return aeroport;
 }
 
 char *_get_alias_region(current_file *file){
 
     char *str = me_memory_alloc(NULL, sizeof(char)*4);
-    char current_char = get_next_char(file);
+    char current_char = pf_get_next_char(file);
     while ( !isalpha(current_char) ) {
-        current_char = get_next_char(file);
+        current_char = pf_get_next_char(file);
     }
     str[0] = current_char;
     for (int i = 1; i < 3; ++i) {
-        str[i] = get_next_char(file);
+        str[i] = pf_get_next_char(file);
     }
     str[3] = '\0';
     return str;
 }
 
-regions *create_regions(current_file *file){
+Regions *create_regions(current_file *file){
 
-    regions *new = me_memory_alloc(NULL, sizeof(regions));
+    Regions *new = me_memory_alloc(NULL, sizeof(Regions));
     new->aeroports = create_map(13, NULL);
     new->quantity_aeroports=0;
 
-    advance_to_word(file, "!regions");
-    char *str = get_word_until_token(file, '!');
+    pf_advance_to_word(file, "!regions");
+    char *str = pf_get_word_until_token(file, '!');
     current_file *regions_str = create_parser_with_txt(str);
 
     char *alias_region;
     InfoAeroports *info;
-    while (!is_end_file(regions_str)){
+    while (!pf_is_end_file(regions_str)){
         alias_region = _get_alias_region(regions_str);
-        str = get_word_until_token(regions_str, '\n');
+        str = pf_get_word_until_token(regions_str, '\n');
         info = create_info_aeroport(str);
         me_free_memory((void *)&str);
 
         map_add_key(new->aeroports, alias_region, info);
         new->quantity_aeroports++;
+        pf_get_next_char(regions_str);
 
     }
 
