@@ -23,12 +23,12 @@ List *create_list(){
     return new;
 }
 
-void append(List *self, void *element){
+void li_append(List *self, void *element){
     self->current_size++;
     self->data = me_memory_alloc(self->data, sizeof(void *)*self->current_size);
     self->data[self->current_size-1] = element;
 }
-void* remove_element(List *self, int index){
+void* li_remove_element(List *self, int index){
 
     void *element_remove;
     if ( index >= self->current_size  ){
@@ -43,7 +43,7 @@ void* remove_element(List *self, int index){
     return element_remove;
 }
 
-int search_index_element(List *self, void *element, int (*is_this_element)(void *, void *)){
+int li_search_index_element(List *self, void *element, int (*is_this_element)(void *, void *)){
 
     for (int i = 0; i < self->current_size; ++i) {
         if ( is_this_element( self->data[i], element ) ){
@@ -52,7 +52,7 @@ int search_index_element(List *self, void *element, int (*is_this_element)(void 
     }
     return -1;
 }
-void *pop(List *self){
+void *li_pop(List *self){
 
     void *ptr = self->data[self->current_size-1];
     self->current_size--;
@@ -60,9 +60,9 @@ void *pop(List *self){
     return ptr;
 }
 
-void* dequeue(List *self){
+void* li_dequeue(List *self){
 
-    void *data = remove_element(self, 0);
+    void *data = li_remove_element(self, 0);
     return data;
 }
 
@@ -96,27 +96,27 @@ void* destroy_list(List *self, int quantity_destructors, ...){
 
 }
 
-void *get_element_in_list(List *self, int index){
+void *li_get_element_in_list(List *self, int index){
 
     if ( index >= self->current_size ){
         return NULL;
     }
     return self->data[index];
 }
-int is_void(List *self){
+int li_is_void(List *self){
     return !self->current_size;
 }
-int get_tam(List *self){
+int li_get_tam(List *self){
     return self->current_size;
 }
-List *break_str_in_list(char *str, char *tok){
+List *li_break_str_in_list(char *str, char *tok){
 
     List *list = create_list();
 
     char *token = strtok(str, tok);
 
     while (token){
-        append(list, strdup(token));
+        li_append(list, strdup(token));
         token = strtok(NULL, tok);
     }
     return list;
