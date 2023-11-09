@@ -15,7 +15,7 @@ typedef struct KeyValue{
 KeyValue *create_key_value(char *key, void *value){
 
     KeyValue *new = me_memory_alloc(NULL, sizeof(KeyValue));
-    new->key = key;
+    new->key = strdup(key);
     new->value = value;
     return new;
 }
