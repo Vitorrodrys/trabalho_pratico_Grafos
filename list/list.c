@@ -96,6 +96,21 @@ void* destroy_list(List *self, int quantity_destructors, ...){
 
 }
 
+void *destroy_list_with_only_one_destructor(List *self, void *(*f_destructor)(void *)){
+
+    void *in_f_destructor(void *data){
+        me_free_memory(&data);
+        return NULL;
+    }
+    f_destructor = f_destructor?f_destructor:in_f_destructor;
+    for (int i = 0; i < self->current_size; ++i) {
+        self->data[i] = f_destructor(self->data[i]);
+
+    }
+    self->current_size = 0;
+    me_free_memory((void *)&self);
+    return NULL;
+}
 void *li_get_element_in_list(List *self, int index){
 
     if ( index >= self->current_size ){
