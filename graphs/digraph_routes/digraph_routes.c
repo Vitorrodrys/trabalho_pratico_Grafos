@@ -7,7 +7,7 @@
 #include "../alias/alias.h"
 #include "../../memory/memory.h"
 #include "../../parser_file/parser_file.h"
-#include "../../list/list.h"
+#include "../../generic_structs/list/list.h"
 #include <stdio.h>
 #include <math.h>
 #include "../matrix_operations.h"
@@ -52,7 +52,7 @@ DigraphRoutes *create_graph_routes(Alias *alias_aeroports, Regions *aeroports, C
         dgrt_create_vertex(new, to);
         dgrt_add_edge(new, from, to, aeroports);
         //mop_show_matrix(new->graph, new->size_graph, "%5d", int);
-        destroy_list(list_aux, 2, NULL, NULL);
+        destroy_list(list_aux);
         pf_get_next_char(routes);
         pf_get_next_char(routes);
 
@@ -60,6 +60,16 @@ DigraphRoutes *create_graph_routes(Alias *alias_aeroports, Regions *aeroports, C
     }
 
     return new;
+}
+
+DigraphRoutes *destroy_dgrt(DigraphRoutes *self){
+
+    self->aeroports_alias = destroy_alias(self->aeroports_alias);
+    self->graph = mop_destroy_matrix((void **)self->graph, self->size_graph);
+    self->quantity_edge = 0;
+    self->size_graph = 0;
+    me_free_memory((void *)&self);
+    return NULL;
 }
 
 void dgrt_create_vertex(DigraphRoutes *self, char *name_alias){

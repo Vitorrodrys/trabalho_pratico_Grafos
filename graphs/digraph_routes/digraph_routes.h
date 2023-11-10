@@ -8,7 +8,7 @@
 #include "../../regions/regions.h"
 #include "../alias/alias.h"
 typedef struct DigraphRoutes DigraphRoutes;
-
+DigraphRoutes *destroy_dgrt(DigraphRoutes *self);
 DigraphRoutes *create_graph_routes(Alias *alias_aeroports, Regions *aeroports, CurrentFile *file);
 void dgrt_create_vertex(DigraphRoutes *self, char *name_alias);
 void dgrt_del_vertex(DigraphRoutes *self, char *name_alias);

@@ -27,31 +27,35 @@ void *mop_destroy_matrix(void **matrix, int tam){
 
 char *mop_str_matrix_int(double **matrix, int tam_matrix){
 
-    char *str_matrix = strdup("[\n");
-    char *aux;
+    char *str_matrix = multiply_str("_", tam_matrix*7);
+    char *aux = str_matrix;
+    str_matrix = me_concat_multiplies_str(3, "\n", str_matrix, "\n");
+    me_free_memory((void *)&aux);
     char *aux2;
     for (int i = 0; i < tam_matrix; ++i) {
 
-        aux = me_formatted_str("\t[ %4.2f,  ", matrix[i][0]);
+        aux = me_formatted_str("| %05.2f |", matrix[i][0]);
         aux2 = str_matrix;
         str_matrix= me_concat_str(str_matrix, aux);
         me_free_memory((void*)&aux2);
         me_free_memory((void *)&aux);
         for (int j = 1; j < tam_matrix-1; ++j) {
-            aux = me_formatted_str("%4.2f,  ", matrix[i][j]);
+            aux = me_formatted_str(" %05.2f |", matrix[i][j]);
             aux2 = str_matrix;
             str_matrix = me_concat_str(str_matrix, aux);
             me_free_memory((void *)&aux2);
             me_free_memory((void *)&aux);
         }
-        aux = me_formatted_str("%4.2f  ],\n\n",  matrix[i][tam_matrix-1]);
+        aux = me_formatted_str(" %05.2f |\n\n",  matrix[i][tam_matrix-1]);
         aux2 = str_matrix;
         str_matrix= me_concat_str(str_matrix, aux);
         me_free_memory((void *)&aux2);
         me_free_memory((void *)&aux);
     }
+    aux = multiply_str("_", tam_matrix*7);
     aux2 = str_matrix;
-    str_matrix= me_concat_str(str_matrix, "]");
+    str_matrix= me_concat_str(str_matrix, aux);
+    me_free_memory((void *)&aux);
     me_free_memory((void *)&aux2);
     return str_matrix;
 }

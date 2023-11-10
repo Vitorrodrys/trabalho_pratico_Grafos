@@ -8,6 +8,20 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+void *simple_destructor(void *data){
+    me_free_memory((void *)&data);
+    return NULL;
+}
+
+char *me_int_to_str(int number){
+    return me_formatted_str("%d\n", number);
+}
+char *me_str_to_str(char *str){
+    return me_formatted_str("%s\n", str);
+}
+
+
+
 void *me_memory_alloc(void *ptr, size_t tam){
 
     void *ptr_reall = realloc(ptr, tam);;
@@ -38,9 +52,6 @@ void me_free_several_objects(int quantity, ...){
     }
     ptr = NULL;
     va_end(p);
-}
-char *me_int_to_str(int number){
-    return me_formatted_str("%d\n", number);
 }
 
 char *me_concat_str(char *str, char *other){
@@ -75,3 +86,35 @@ char *me_formatted_str(char *control_str, ...){
     return strdup(aux);
 }
 
+char *me_concat_multiplies_str(int quantitys, ...){
+
+    va_list  p;
+    va_start(p, quantitys);
+    char *aux1 = va_arg(p, char *);
+    void *aux2;
+    char *result = me_concat_str("", aux1);
+    for (int i =1; i < quantitys; ++i) {
+        aux1 = va_arg(p, char *);
+        aux2 = result;
+        result = me_concat_str(result, aux1);
+        me_free_memory(&aux2);
+    }
+    va_end(p);
+    return result;
+}
+
+char *multiply_str(char *string, int times){
+
+    if (!times){
+        return strdup("");
+    }
+    char *product = strdup(string);
+    char *aux;
+    for (int i = 1; i < times; ++i) {
+        aux = product;
+        product = me_concat_str(product, string);
+        me_free_memory((void *)&aux);
+    }
+    return product;
+
+}
