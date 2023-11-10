@@ -8,35 +8,33 @@
 #include "../../memory/memory.h"
 #include "../../parser_file/parser_file.h"
 #include "../../list/list.h"
-
+#include <stdio.h>
 #include <math.h>
 #include "../matrix_operations.h"
 
 typedef struct DigraphRoutes{
 
     Alias *aeroports_alias;
-    int next_id;
     int size_graph;
-    int **graph;
+    double **graph;
     int quantity_edge;
 
 
 }DigraphRoutes;
 
 
-DigraphRoutes *create_graph_routes(current_file *file, Regions *aeroports){
+DigraphRoutes *create_graph_routes(Alias *alias_aeroports, Regions *aeroports, CurrentFile *file){
 
     DigraphRoutes *new = me_memory_alloc(NULL, sizeof(DigraphRoutes));
     *new = (DigraphRoutes){
-        .aeroports_alias = create_alias(),
-        .next_id = 0,
+        .aeroports_alias = alias_aeroports,
         .graph = NULL,
         .size_graph = 0
     };
 
     pf_advance_to_word(file, "!routes");
     char *str = pf_get_word_until_token(file, '!');
-    current_file *routes = create_parser_with_txt(str);
+    CurrentFile *routes = create_parser_with_txt(str);
     pf_get_next_char(routes);
     pf_get_next_char(routes);
     char *sub_str;
@@ -52,9 +50,8 @@ DigraphRoutes *create_graph_routes(current_file *file, Regions *aeroports){
         to = li_get_element_in_list(list_aux, 1);
         dgrt_create_vertex(new, from);
         dgrt_create_vertex(new, to);
-
         dgrt_add_edge(new, from, to, aeroports);
-
+        //mop_show_matrix(new->graph, new->size_graph, "%5d", int);
         destroy_list(list_aux, 2, NULL, NULL);
         pf_get_next_char(routes);
         pf_get_next_char(routes);
@@ -71,15 +68,15 @@ void dgrt_create_vertex(DigraphRoutes *self, char *name_alias){
         //already exist alias
         return;
     }
-    alias_add_alias(self->aeroports_alias,name_alias,self->next_id);
-    self->next_id++;
+    alias_add_alias(self->aeroports_alias,name_alias);
     self->size_graph++;
-    self->graph = me_memory_alloc(self->graph, sizeof(int *)*self->size_graph);
+    self->graph = me_memory_alloc(self->graph, sizeof(double *)*self->size_graph);
     self->graph[self->size_graph-1]=NULL;
     for (int i = 0; i < self->size_graph; ++i) {
-        self->graph[i] = me_memory_alloc(self->graph[i], sizeof (int)*self->size_graph);
+        self->graph[i] = me_memory_alloc(self->graph[i], sizeof (double)*self->size_graph);
+        self->graph[i][self->size_graph-1] = 0.0;
     }
-    memset(self->graph[self->size_graph-1], 0, sizeof(int)*self->size_graph);
+    memset(self->graph[self->size_graph-1], 0, sizeof(double)*self->size_graph);
 
 }
 
@@ -92,7 +89,7 @@ void dgrt_del_vertex(DigraphRoutes *self, char *name_alias){
 
     alias_remove_alias(self->aeroports_alias, name_alias);
 
-    int **temp_graph = mop_create_matrix(sizeof(int), self->size_graph-1);
+    double **temp_graph = mop_create_matrix(sizeof(double), self->size_graph-1);
     int i_or = 0;
     int j_or;
     for (int i = 0; i < self->size_graph; ++i) {
@@ -116,12 +113,12 @@ void dgrt_del_vertex(DigraphRoutes *self, char *name_alias){
     self->size_graph--;
 }
 
-int calc_dist(int x, int y, int x_l, int y_l){
+double calc_dist(int x, int y, int x_l, int y_l){
 
     int x_calc = x-x_l;
     int y_calc = y-y_l;
 
-    return (int)sqrt((double )(x_calc*x_calc+y_calc*y_calc));
+    return sqrt((double )(x_calc*x_calc+y_calc*y_calc));
 
 
 }
@@ -130,7 +127,7 @@ void dgrt_add_edge(DigraphRoutes *self, char *from, char *to, Regions *aeroports
     InfoAeroports *info = ifa_get_info_aeroport(aeroports, from);
     InfoAeroports *other_info = ifa_get_info_aeroport(aeroports, to);
 
-    int dist = calc_dist(
+    double dist = calc_dist(
             ifa_get_x_cord(info),
             ifa_get_y_cord(info),
             ifa_get_x_cord(other_info),
@@ -151,5 +148,19 @@ void dgrt_remove_edge(DigraphRoutes *self, int from, int to){
     self->graph[from][to] = 0;
     self->graph[to][from] = 0;
     self->quantity_edge--;
+}
+char* dgrt_str(DigraphRoutes *self){
+
+    int size;
+    char *str_aerorts_alias = alias_str(self->aeroports_alias);
+    char *str_matrix = mop_str_matrix_int(self->graph, self->size_graph);
+    char *graph_str = me_formatted_str(
+            "aeroport_alias: %s,\nquantity_vertex: %d\nquantity_edges:%d,\ngraph: %s\n",
+            str_aerorts_alias, self->size_graph, self->quantity_edge, str_matrix);
+    return graph_str;
+
+
+
+
 }
 
