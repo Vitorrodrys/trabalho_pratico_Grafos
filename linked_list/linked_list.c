@@ -5,6 +5,7 @@
 #include "linked_list.h"
 #include "vertex.h"
 #include "../memory/memory.h"
+#include "../list/list.h"
 typedef struct LinkedList{
 
     Vertex *first;
@@ -21,6 +22,14 @@ LinkedList *create_linked_list(){
       .last = NULL
     };
     return new;
+}
+
+LinkedList *destroy_lkl(LinkedList *self){
+
+    for (int i = self->quantity-1; i >=0; --i) {
+
+         lkl_rm_element(self, i);
+    }
 }
 
 int lkl_insert_element(LinkedList *self, void *data, int index){
@@ -59,6 +68,15 @@ void *lkl_get_data(LinkedList *self, int index){
     }
     return vt_get_data(self->first, index);
 }
+void* lkl_set_element(LinkedList *self, int index, void *value){
+
+    if ( index >= self->quantity ){
+        return NULL;
+    }
+    void *aux = vt_remove_element_lk(&self->first, index);
+    self->first= vt_add_element(self->first, value, index);
+    return aux;
+}
 void lkl_append(LinkedList *self, void *data){
 
     if (!self->quantity){
@@ -77,4 +95,7 @@ int lkl_is_void(LinkedList *self){
 }
 int lkl_get_index_element(LinkedList *self, void *data, int (*eq)(void *, void *)){
     return vt_find_element(self->first, data, eq);
+}
+int lkl_get_tam(LinkedList *self){
+    return self->quantity;
 }
