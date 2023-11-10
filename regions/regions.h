@@ -13,6 +13,6 @@ InfoAeroports *destroy_info_aeroports(InfoAeroports *self);
 
 typedef struct Regions Regions;
 InfoAeroports *ifa_get_info_aeroport(Regions *self, char *alias);
-Regions *create_regions(current_file *file);
+Regions *create_regions(CurrentFile *file);
 
 #endif /* REGIONS_H */
