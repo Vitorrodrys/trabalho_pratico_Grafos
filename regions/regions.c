@@ -3,9 +3,9 @@
 //
 
 #include "regions.h"
-#include "../hash_map/hash_map.h"
+#include "../generic_structs/hash_map/map/hash_map.h"
 #include "../memory/memory.h"
-#include "../list/list.h"
+#include "../generic_structs/list/list.h"
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -44,8 +44,8 @@ InfoAeroports *create_info_aeroport(char *str){
     new->y_cord = atoi(li_get_element_in_list(sublist, 2));
     new->name_city = strdup(li_get_element_in_list(sublist, 3));
     new->region = strdup(li_get_element_in_list(list, 1));
-    list = destroy_list(list, 2, NULL, NULL);
-    sublist=destroy_list(sublist, 4, NULL, NULL, NULL, NULL);
+    list = destroy_list(list);
+    sublist=destroy_list(sublist);
     return new;
 }
 InfoAeroports *destroy_info_aeroports(InfoAeroports *self){
@@ -61,6 +61,10 @@ InfoAeroports *destroy_info_aeroports(InfoAeroports *self){
 char * info_aeroports_str(InfoAeroports *self){
     return me_formatted_str( "\n\t{\n\t\t\"x_cord\":%d, \"y_cord\":%d\n\t\t, \"name_city\":\"%s\"\n\t\t, \"region\":\"%s\"\n\t}", self->x_cord, self->y_cord, self->name_city, self->region );
 }
+int info_aeroports_eq(InfoAeroports *self, InfoAeroports *other){
+
+    return self->y_cord == other->y_cord && self->x_cord == other->x_cord && !strcmp(self->region, other->region) && !strcmp(self->name_city, other->name_city);
+}
 typedef struct Regions{
 
 
@@ -70,7 +74,7 @@ typedef struct Regions{
 
 InfoAeroports *ifa_get_info_aeroport(Regions *self, char *alias){
 
-    InfoAeroports *aeroport = map_get_key(self->aeroports, alias);
+    InfoAeroports *aeroport = map_get_value(self->aeroports, alias);
     return aeroport;
 }
 
@@ -98,7 +102,7 @@ Regions *create_regions(CurrentFile *file){
     pf_advance_to_word(file, "!regions");
     char *str = pf_get_word_until_token(file, '!');
     CurrentFile *regions_str = create_parser_with_txt(str);
-
+    BaseValue *new_value;
     char *alias_region;
     InfoAeroports *info;
     while (!pf_is_end_file(regions_str)){
@@ -106,10 +110,16 @@ Regions *create_regions(CurrentFile *file){
         str = pf_get_word_until_token(regions_str, '\n');
         info = create_info_aeroport(str);
         me_free_memory((void *)&str);
-
+        new_value = create_base_value(
+                info,
+                (void *)destroy_info_aeroports,
+                (void *)info_aeroports_str,
+                (void *)info_aeroports_eq,
+                sizeof(InfoAeroports)
+                );
         map_add_key(
                 new->aeroports,
-                create_key_value(alias_region, info, (void *) info_aeroports_str, (void *)destroy_info_aeroports )
+                create_key_value(alias_region, new_value )
         );
         new->quantity_aeroports++;
         pf_get_next_char(regions_str);
