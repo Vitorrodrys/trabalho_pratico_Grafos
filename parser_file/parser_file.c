@@ -7,16 +7,16 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "../memory/memory.h"
-typedef struct current_file{
+typedef struct CurrentFile{
 
     char *data;
     int current_char;
     size_t tam_file;
-}current_file;
+}CurrentFile;
 
-current_file *create_parser_with_txt(char *str){
+CurrentFile *create_parser_with_txt(char *str){
 
-    current_file *new = me_memory_alloc(NULL, sizeof(current_file));
+    CurrentFile *new = me_memory_alloc(NULL, sizeof(CurrentFile));
     new->data = str;
     new->current_char = 0;
     new->tam_file = strlen(str);
@@ -24,9 +24,9 @@ current_file *create_parser_with_txt(char *str){
 
 }
 
-current_file *create_parser(char *name_file){
+CurrentFile *create_parser(char *name_file){
 
-    current_file *new = me_memory_alloc(NULL, sizeof(current_file));
+    CurrentFile *new = me_memory_alloc(NULL, sizeof(CurrentFile));
 
     int fd;
     struct stat file_stat;
@@ -52,14 +52,14 @@ current_file *create_parser(char *name_file){
     return new;
 }
 
-char pf_get_next_char(current_file *self){
+char pf_get_next_char(CurrentFile *self){
     if ( self->current_char == self->tam_file){
         return -1;
     }
     self->current_char++;
     return self->data[self->current_char-1];
 }
-char * pf_get_word_until_token(current_file *self, char token){
+char * pf_get_word_until_token(CurrentFile *self, char token){
 
     int tam= strchr(self->data+self->current_char,token) -(self->data+self->current_char );
     if(tam<=0){
@@ -69,7 +69,7 @@ char * pf_get_word_until_token(current_file *self, char token){
     self->current_char += tam;
     return  string;
 }
-long int pf_get_next_int(current_file *self ){
+long int pf_get_next_int(CurrentFile *self ){
     int tmp_ind= self->current_char;
     while (isdigit(*(self->data+self->current_char))){
         self->current_char++;
@@ -79,7 +79,7 @@ long int pf_get_next_int(current_file *self ){
     string[self->current_char-tmp_ind]='\0';
    return atol(string);
 }
-double pf_get_next_double(current_file *self ){
+double pf_get_next_double(CurrentFile *self ){
     int tmp_index= self->current_char;
     while (isdigit(*(self->data+self->current_char)) || self->data[self->current_char] =='.'){
         self->current_char++;
@@ -93,7 +93,7 @@ double pf_get_next_double(current_file *self ){
     return atof(string);
 }
 
-int pf_advance_to_word(current_file *self, char *word){
+int pf_advance_to_word(CurrentFile *self, char *word){
     char current_char = '\0';
     int index_word = 0;
     do {
@@ -112,14 +112,14 @@ int pf_advance_to_word(current_file *self, char *word){
         return 0;
     }
 }
-void pf_return_to_file_start(current_file *self){
+void pf_return_to_file_start(CurrentFile *self){
     self->current_char = 0;
 }
-int pf_is_end_file(current_file *self){
+int pf_is_end_file(CurrentFile *self){
     return self->current_char == self->tam_file;
 }
 
-void* destroy_parser(current_file *self){
+void* destroy_parser(CurrentFile *self){
     munmap(self->data, self->tam_file);
     self->data = NULL;
 }
