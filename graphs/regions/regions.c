@@ -3,9 +3,9 @@
 //
 
 #include "regions.h"
-#include "../generic_structs/hash_map/map/hash_map.h"
-#include "../memory/memory.h"
-#include "../generic_structs/list/list.h"
+#include "../../generic_structs/hash_map/map/hash_map.h"
+#include "../../memory/memory.h"
+#include "../../generic_structs/list/list.h"
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -44,22 +44,24 @@ InfoAeroports *create_info_aeroport(char *str){
     new->y_cord = atoi(li_get_element_in_list(sublist, 2));
     new->name_city = strdup(li_get_element_in_list(sublist, 3));
     new->region = strdup(li_get_element_in_list(list, 1));
+    //retired /r by prevent that when needed show the region in display, don't cause conflit with the console
+    *strchr(new->region, '\r') = ' ';
     list = destroy_list(list);
     sublist=destroy_list(sublist);
     return new;
 }
 InfoAeroports *destroy_info_aeroports(InfoAeroports *self){
-    me_free_memory((void *)&self->name_city);
-    me_free_memory((void *)&self->region);
+    me_free(self->name_city);
+    me_free(self->region);
     *self = (InfoAeroports){
         .y_cord = 0,
         .x_cord = 0
     };
-    me_free_memory((void *)&self);
+    me_free(self);
     return NULL;
 }
 char * info_aeroports_str(InfoAeroports *self){
-    return me_formatted_str( "\n\t{\n\t\t\"x_cord\":%d, \"y_cord\":%d\n\t\t, \"name_city\":\"%s\"\n\t\t, \"region\":\"%s\"\n\t}", self->x_cord, self->y_cord, self->name_city, self->region );
+    return me_formatted_str( " {\n\t\t\"x_cord\":%d,\n\t\t\"y_cord\":%d,\n\t\t\"name_city\":\"%s\",\n\t\t\"region\":\"%s\"\n\t\t}", self->x_cord, self->y_cord, self->name_city, self->region );
 }
 int info_aeroports_eq(InfoAeroports *self, InfoAeroports *other){
 
@@ -109,7 +111,7 @@ Regions *create_regions(CurrentFile *file){
         alias_region = _get_alias_region_in_file(regions_str);
         str = pf_get_word_until_token(regions_str, '\n');
         info = create_info_aeroport(str);
-        me_free_memory((void *)&str);
+        me_free(str);
         new_value = create_base_value(
                 info,
                 (void *)destroy_info_aeroports,
@@ -131,9 +133,13 @@ Regions *create_regions(CurrentFile *file){
 char *re_str(Regions *self){
     char *aeroports_in_str = map_str(self->aeroports);
     char *regions_str = me_formatted_str("aeroport regions: %s,\nquantity aeroports:%d", aeroports_in_str, self->quantity_aeroports);
-    me_free_memory((void *)&aeroports_in_str);
+    me_free(aeroports_in_str);
     return regions_str;
 }
 Regions *destroy_regions(Regions *self){
 
+    self->aeroports = destroy_map(self->aeroports);
+    self->quantity_aeroports = 0;
+    me_free(self);
+    return NULL;
 }

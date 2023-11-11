@@ -1,7 +1,7 @@
 #ifndef REGIONS_H
 #define REGIONS_H
 
-#include "../parser_file/parser_file.h"
+#include "../../parser_file/parser_file.h"
 
 
 typedef struct InfoAeroports InfoAeroports;
@@ -14,5 +14,6 @@ InfoAeroports *destroy_info_aeroports(InfoAeroports *self);
 typedef struct Regions Regions;
 InfoAeroports *ifa_get_info_aeroport(Regions *self, char *alias);
 Regions *create_regions(CurrentFile *file);
-
+char *re_str(Regions *self);
+Regions *destroy_regions(Regions *self);
 #endif /* REGIONS_H */
