@@ -32,12 +32,19 @@ int kv_is_this_element(KeyValue *self, KeyValue *other){
     return !strcmp(self->key, other->key);
 }
 void *destroy_kv(KeyValue *self){
-    me_free_memory((void *)&self->key);
+    me_free(self->key);
     self->value = destroy_base_value(self->value);
-    me_free_memory((void *)&self);
+    me_free(self);
     return NULL;
 }
 char* kv_str(KeyValue *self){
-    return me_formatted_str("\"%s\":%s", self->key,  bv_in_str(self->value));
+    char *key = self->key;
+    if (strchr(key, '"') == NULL){
+        key = me_formatted_str("\"%s\"", key);
+        char *result = me_formatted_str("%s:%s,", key, bv_in_str(self->value));
+        me_free(key);
+        return result;
+    }
+    return me_formatted_str("%s:%s, ", self->key,  bv_in_str(self->value));
 }
 

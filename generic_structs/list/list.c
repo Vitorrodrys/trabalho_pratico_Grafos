@@ -9,14 +9,11 @@
 #include "../../memory/memory.h"
 
 typedef struct List{
-
     BaseValue **data;
     int current_size;
-
 }List;
 
 List *create_list(){
-
     List *new = me_memory_alloc(NULL, sizeof(List));
     new->data = NULL;
     new->current_size = 0;
@@ -28,7 +25,7 @@ List* destroy_list(List *self){
         self->data[i] = destroy_base_value(self->data[i]);
     }
     self->current_size = 0;
-    me_free_memory((void *)&self);
+    me_free(self);
     return NULL;
 }
 

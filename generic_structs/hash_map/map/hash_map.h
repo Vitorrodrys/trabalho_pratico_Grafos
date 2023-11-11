@@ -13,4 +13,5 @@ void map_att_key(Map *self, KeyValue *new_kv);
 char* map_str(Map *self);
 KeyValue *map_next(Map *self, ItHash *iterator);
 Map *destroy_map(Map *self);
+int map_is_void(Map *self);
 #endif /* HASH_MAP_H */

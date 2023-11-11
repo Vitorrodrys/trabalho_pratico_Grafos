@@ -5,7 +5,7 @@
 #ifndef TRABALHO_PRATICO_GRAFOS_DIGRAPH_ROUTES_H
 #define TRABALHO_PRATICO_GRAFOS_DIGRAPH_ROUTES_H
 #include "../../parser_file/parser_file.h"
-#include "../../regions/regions.h"
+#include "../regions/regions.h"
 #include "../alias/alias.h"
 typedef struct DigraphRoutes DigraphRoutes;
 DigraphRoutes *destroy_dgrt(DigraphRoutes *self);

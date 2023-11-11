@@ -16,7 +16,7 @@ Vertex *create_vertex(BaseValue *dado, Vertex *next){
 Vertex *destroy_vertex(Vertex *self){
     self->next = NULL;
     self->data = destroy_base_value(self->data);
-    me_free_memory((void *)&self);
+    me_free(self);
     return NULL;
 }
 Vertex *vt_get_next(Vertex *self){
@@ -45,7 +45,6 @@ void vt_remove_element_lk(Vertex **self, int index){
 
     Vertex *aux = *self;
     Vertex *element_removed;
-    void *dado;
     if ( index == 0 ){
         element_removed = *self;
         *self = vt_get_next(*self);

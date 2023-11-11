@@ -33,7 +33,7 @@ ColisionList *create_colision_list(){
 ColisionList *destroy_colision_list(ColisionList *self){
 
     self->colision_list = destroy_lkl(self->colision_list);
-    me_free_memory((void *)&self);
+    me_free(self);
     return NULL;
 }
 void colist_append_colision(ColisionList *self, KeyValue *new_value){

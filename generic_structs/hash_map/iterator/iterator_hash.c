@@ -24,6 +24,7 @@ ItHash *create_iterator(Map *hash_map){
 }
 ItHash *destructor_iterator(ItHash *self){
     memset(self, 0, sizeof(ItHash));
+    me_free(self);
     return NULL;
 }
 KeyValue *ith_next(ItHash *self){

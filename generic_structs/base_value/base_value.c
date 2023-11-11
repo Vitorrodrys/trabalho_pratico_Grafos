@@ -4,7 +4,7 @@
 
 #include "base_value.h"
 #include "../../memory/memory.h"
-
+#include <stdio.h>
 
 typedef struct BaseValue{
     void *data;
@@ -35,10 +35,19 @@ BaseValue *destroy_base_value(BaseValue *self){
     if ( self == NULL){
         return NULL;
     }
-    if ( self->data)
+    if ( self->data){
         self->data = self->destructor(self->data);
+        if ( self->data != NULL ){
+            fprintf(
+                    stderr,
+                    "pointer data don't was seted as null, was expected that function destructor saved in function pointer destructor clear the regi"
+                          "on of the memory and returned NULL by pointer, however, it don't was doing this!"
+            );
+            exit(1);
+        }
+    }
     memset(self, 0, sizeof(BaseValue));
-    me_free_memory((void *)&self);
+    me_free(self);
     return NULL;
 }
 char *bv_in_str(BaseValue *self){

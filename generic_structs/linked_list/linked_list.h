@@ -14,7 +14,7 @@ int lkl_insert_element(LinkedList *self, BaseValue *data, int index);
 void lkl_rm_element(LinkedList *self, int index);
 void *lkl_get_data(LinkedList *self, int index);
 void lkl_append(LinkedList *self, BaseValue *data);
-void lkl_set_element(LinkedList *self, int index, void *value);
+void lkl_set_element(LinkedList *self, int index, BaseValue *value);
 int lkl_is_void(LinkedList *self);
 int lkl_get_index_element(LinkedList *self, BaseValue *data);
 int lkl_get_tam(LinkedList *self);

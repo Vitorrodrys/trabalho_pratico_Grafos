@@ -31,7 +31,7 @@ LinkedList *destroy_lkl(LinkedList *self){
     self->first = NULL;
     self->last = NULL;
     self->quantity = 0;
-    me_free_memory((void *)&self);
+    me_free(self);
     return NULL;
 }
 
@@ -70,7 +70,7 @@ void *lkl_get_data(LinkedList *self, int index){
     }
     return vt_get_data(self->first, index);
 }
-void lkl_set_element(LinkedList *self, int index, void *value){
+void lkl_set_element(LinkedList *self, int index, BaseValue *value){
 
     if ( index >= self->quantity ){
         return;

@@ -27,12 +27,11 @@ int hash(const char *string){
 }
 
 int map_get_index_key(Map *self, const char *key){
-    return self->f_hash(key)%self->tam_vector;
+    return self->f_hash(key) %self->tam_vector;
 }
 Map *create_map(int tam_vector, int (*f_hash)(const char *)){
-
     Map *new = me_memory_alloc(NULL, sizeof(Map));
-    new->vector = me_memory_alloc(NULL, sizeof(LinkedList *)*tam_vector);
+    new->vector = me_memory_alloc(NULL, sizeof(ColisionList *)*tam_vector);
     for (int i = 0; i < tam_vector; ++i) {
         new->vector[i] = create_colision_list();
     }
@@ -41,30 +40,23 @@ Map *create_map(int tam_vector, int (*f_hash)(const char *)){
     return new;
 }
 Map *destroy_map(Map *self){
-
-
     for (int i = 0; i < self->tam_vector; ++i) {
         self->vector[i] = destroy_colision_list(self->vector[i]);
     }
-    me_free_memory((void *)&self->vector);
+    me_free(self->vector);
     self->tam_vector = 0;
     self->f_hash = 0;
-    me_free_memory((void *)&self);
+    me_free(self);
     return NULL;
 }
 
 void map_add_key(Map *self, KeyValue*key_value){
-
     int index = map_get_index_key(self, kv_get_key(key_value));
     colist_append_colision(self->vector[index], key_value);
-
 }
 void map_att_key(Map *self, KeyValue *new_kv){
-
     int index = map_get_index_key(self, kv_get_key(new_kv));
-
     KeyValue *kv = colist_get_key_value(self->vector[index], (char *)kv_get_key(new_kv));
-
     if ( kv == NULL ){
         map_add_key(self, new_kv);
         return;
@@ -73,9 +65,7 @@ void map_att_key(Map *self, KeyValue *new_kv){
     colist_append_colision(self->vector[index], new_kv);
 }
 void map_remove_key(Map *self, char *key){
-
     int index = map_get_index_key(self, key);
-
     if (colist_is_void(self->vector[index]) ){
         return;
     }
@@ -126,22 +116,18 @@ char* map_str(Map *self){
 
     ItHash *iter = create_iterator(self);
     KeyValue *current_kv = ith_next(iter);;
-    char *key;
-    char *value;
+    char *kv_string;
 
-    int quantity_chars=0;
     char *string_kv = strdup("{\n\t\t");
     char *aux;
     char *aux2;
     do {
 
-        key = (char *)kv_get_key(current_kv);
-        value = kv_str(current_kv);
-
-        aux = me_formatted_str("\"%s\": %s,\n", key, value);
-        aux2=string_kv;
-        string_kv = me_concat_str(string_kv, aux);
-        me_free_memory((void *)&aux2);
+        kv_string = kv_str(current_kv);
+        aux = string_kv;
+        string_kv = me_concat_multiplies_str(3,string_kv, kv_string, "\n\t\t");
+        me_free(kv_string);
+        me_free(aux);
 
         current_kv = ith_next(iter);
 
@@ -151,9 +137,14 @@ char* map_str(Map *self){
     iter = destructor_iterator(iter);
     aux = string_kv;
     string_kv =me_concat_str(string_kv, "\n\t}");
-    me_free_memory((void *)&aux);
+    me_free(aux);
     return string_kv;
 
-
 }
+
+int map_is_void(Map *self){
+    ItHash *it = create_iterator(self);
+    return ith_next(it) == NULL;
+}
+
 
