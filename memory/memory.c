@@ -9,15 +9,15 @@
 #include <stdarg.h>
 
 void *simple_destructor(void *data){
-    me_free_memory((void *)&data);
+    me_free(data);
     return NULL;
 }
 
 char *me_int_to_str(int number){
-    return me_formatted_str("%d\n", number);
+    return me_formatted_str("%d", number);
 }
 char *me_str_to_str(char *str){
-    return me_formatted_str("%s\n", str);
+    return me_formatted_str("\"%s\"\n", str);
 }
 
 
@@ -34,8 +34,6 @@ void *me_memory_alloc(void *ptr, size_t tam){
 }
 
 void me_free_memory(void **ptr){
-
-
     free(*ptr);
     *ptr=NULL;
 }
@@ -78,7 +76,7 @@ char *me_formatted_str(char *control_str, ...){
     va_start(p, quantity_paramaters);
     va_list p_cp;
     va_copy(p_cp, p);
-    int size = vsnprintf(NULL, 0, control_str, p);
+    int size = vsnprintf(NULL, 0, control_str, p)+1;
     char aux[size];
     vsnprintf(aux, size, control_str, p_cp);
     va_end(p);
@@ -97,7 +95,7 @@ char *me_concat_multiplies_str(int quantitys, ...){
         aux1 = va_arg(p, char *);
         aux2 = result;
         result = me_concat_str(result, aux1);
-        me_free_memory(&aux2);
+        me_free(aux2);
     }
     va_end(p);
     return result;
@@ -113,7 +111,7 @@ char *multiply_str(char *string, int times){
     for (int i = 1; i < times; ++i) {
         aux = product;
         product = me_concat_str(product, string);
-        me_free_memory((void *)&aux);
+        me_free(aux);
     }
     return product;
 

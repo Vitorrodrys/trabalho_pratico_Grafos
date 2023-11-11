@@ -19,4 +19,5 @@ int alias_get_number_by_alias(Alias *self, char *name_alias);
 char *alias_get_alias_by_number(Alias *self, int number);
 char* alias_str(Alias *self);
 ItHash *alias_create_iterator_alias(Alias *self);
+int alias_is_void(Alias *self);
 #endif //TRABALHO_PRATICO_GRAFOS_ALIAS_H

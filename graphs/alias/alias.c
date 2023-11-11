@@ -22,11 +22,11 @@ int *create_int(int number){
     return ptr;
 }
 void *destroy_int(int *number){
-    me_free_memory((void *)&number);
+    me_free(number);
     return NULL;
 }
 char* str_int(const int*ptr){
-    return me_formatted_str("%d\n",*ptr );
+    return me_formatted_str("\"%d\"",*ptr );
 }
 int eq_int(int *ptr, int *ptr2){
     return *ptr == *ptr2;
@@ -36,11 +36,11 @@ char *create_str(char *str){
     return strdup(str);
 }
 void *destroy_str(char *str){
-    me_free_memory((void *)&str);
+    me_free(str);
     return NULL;
 }
 char* str_str(char *str){
-    return me_formatted_str("%s\n", str);
+    return me_formatted_str("\"%s\"", str);
 }
 
 Alias *create_alias(){
@@ -57,7 +57,7 @@ Alias *destroy_alias(Alias *self){
     self->alias_name_to_number = destroy_map(self->alias_name_to_number);
     self->alias_number_to_name = destroy_map(self->alias_number_to_name);
     self->quantity_alias = 0;
-    me_free_memory((void *)&self);
+    me_free(self);
     return NULL;
 }
 void alias_add_alias(Alias *self, char *name_alias){
@@ -69,7 +69,7 @@ void alias_add_alias(Alias *self, char *name_alias){
     }
     map_add_key(self->alias_name_to_number, kv);
     char *number_in_str= me_int_to_str(self->quantity_alias);
-    new_element = create_base_value(number_in_str, (void *) destroy_str, (void *)str_str, (void *)strcmp, sizeof(char));
+    new_element = create_base_value(strdup(name_alias), (void *) destroy_str, (void *)str_str, (void *)strcmp, sizeof(char));
     kv = create_key_value(number_in_str, new_element);
     map_add_key(self->alias_number_to_name, kv);
     self->quantity_alias++;
@@ -96,7 +96,7 @@ char *alias_get_alias_by_number(Alias *self, int number){
 
     char *int_in_str = me_int_to_str(number);
     char *value = map_get_value(self->alias_number_to_name, int_in_str);
-    me_free_memory((void *)&int_in_str);
+    me_free(int_in_str);
     return value;
 }
 ItHash *alias_create_iterator_alias(Alias *self){
@@ -113,6 +113,14 @@ char* alias_str(Alias *self){
             str_name_to_number,
             str_number_to_name);
 
+}
+
+int alias_get_quantity_alias(Alias *self){
+    return self->quantity_alias;
+}
+
+int alias_is_void(Alias *self){
+    return map_is_void(self->alias_name_to_number) && map_is_void(self->alias_number_to_name);
 }
 
 

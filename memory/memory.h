@@ -6,6 +6,11 @@
 #define UNTITLED70_MEMORY_H
 #include <stdlib.h>
 #include <string.h>
+
+#define me_free(pointer) \
+me_free_memory((void **)&(pointer))
+
+
 void me_free_several_objects(int quantity, ...);
 void me_free_memory(void **ptr);
 void *me_memory_alloc(void *ptr, size_t tam);
@@ -16,5 +21,4 @@ char *me_formatted_str(char *control_str, ...);
 char *me_str_to_str(char *str);
 void *simple_destructor(void *data);
 char *multiply_str(char *string, int times);
-char *me_formatted_str(char *control_str, ...);
 #endif //UNTITLED70_MEMORY_H
