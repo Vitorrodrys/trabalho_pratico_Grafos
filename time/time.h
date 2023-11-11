@@ -10,6 +10,7 @@ void tm_set_new_hour_with_str(TimeHour *self, char *str);
 void tm_set_new_time_hour_with_seconds(TimeHour *self, time_t seconds);
 TimeHour *create_time_hour_with_str(char *str);
 TimeHour *create_time_hour_with_seconds(time_t seconds);
+TimeHour *destroy_time_hour(TimeHour *self);
 char *tm_get_hour_and_minute(TimeHour *self);
 time_t tm_get_time_in_seconds(TimeHour *self);
 TimeHour *tm_sum_times(TimeHour *self, TimeHour *other);
