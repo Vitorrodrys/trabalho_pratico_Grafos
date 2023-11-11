@@ -33,17 +33,17 @@ CurrentFile *create_parser(char *name_file){
 
     fd = open(name_file, O_RDONLY);
     if (fd == -1) {
-        me_free_memory((void *)&new);
+        me_free(new);
         return NULL;
     }
 
     if (fstat(fd, &file_stat) == -1) {
-        me_free_memory((void *)&new);
+        me_free(new);
         return NULL;
     }
     new->data = mmap(NULL, file_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (new->data == MAP_FAILED) {
-        me_free_memory((void *)&new);
+        me_free(new);
         return NULL;
     }
     close(fd);
