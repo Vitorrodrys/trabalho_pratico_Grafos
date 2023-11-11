@@ -5,13 +5,15 @@
 #ifndef TRABALHO_PRATICO_GRAFOS_INFO_FLIGTH_H
 #define TRABALHO_PRATICO_GRAFOS_INFO_FLIGTH_H
 #include "../../time/time.h"
-typedef struct InfoFligth{
+#define FAKEFLIGTH -1
 
-    TimeHour *flight_departure;
-    TimeHour *flight_arrival;
-    int number_fligh;
-    int stops_number;
 
-}InfoFligth;
+typedef struct InfoFligth InfoFligth;
 
+
+InfoFligth *diff_info_fligths(InfoFligth *self, InfoFligth *other);
+InfoFligth *sum_info_fligths(InfoFligth *self, InfoFligth *other);
+InfoFligth* create_info_fligth(int number_fligh, double dist, int stop_number, char *departure_time, char *arrival_time);
+InfoFligth *destroy_info_fligth(InfoFligth *self);
+char *tm_str(TimeHour *self);
 #endif //TRABALHO_PRATICO_GRAFOS_INFO_FLIGTH_H
