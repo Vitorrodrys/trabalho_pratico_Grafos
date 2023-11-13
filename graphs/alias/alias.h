@@ -10,7 +10,6 @@
 typedef struct Alias Alias;
 
 
-int *create_int(int number);
 Alias *create_alias();
 Alias *destroy_alias(Alias *self);
 void alias_add_alias(Alias *self, char *name_alias);
