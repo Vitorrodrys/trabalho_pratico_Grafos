@@ -65,7 +65,7 @@ void tm_set_new_hour_with_str(TimeHour *self, char *str){
     if ( self->in_data ){
         self->in_data = destroy_calendar(self->in_data);
     }
-    self->in_data = create_calendar(0, hour_int, min_int);
+    self->in_data = create_calendar(0, hour_int, min_int,0);
     self->in_seconds = calend_to_seconds(self->in_data);
 }
 void tm_set_new_time_hour_with_seconds(TimeHour *self, time_t seconds){
@@ -88,4 +88,16 @@ TimeHour *tm_sum_times(TimeHour *self, TimeHour *other){
 
 TimeHour *tm_diff_times(TimeHour *self, TimeHour *other){
     return create_time_hour_with_seconds(self->in_seconds-other->in_seconds);
+}
+TimeHour *tm_cp(TimeHour *self){
+    return create_time_hour_with_seconds(tm_get_time_in_seconds(self));
+}
+int tm_eq(TimeHour *self, TimeHour *other){
+    return self->in_seconds == other->in_seconds && calend_eq(self->in_data, other->in_data);
+}
+int tm_bigger_then(TimeHour *self, TimeHour *other){
+    return self->in_seconds > other->in_seconds;
+}
+int tm_less_then(TimeHour *self, TimeHour *other){
+    return self->in_seconds < other->in_seconds;
 }
