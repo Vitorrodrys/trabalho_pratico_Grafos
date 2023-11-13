@@ -3,7 +3,7 @@
 //
 
 #include "matrix_operations.h"
-#include "../memory/memory.h"
+#include "../../memory/memory.h"
 #include <stdio.h>
 
 void *mop_create_matrix(size_t tam_type, int tam){
@@ -11,6 +11,7 @@ void *mop_create_matrix(size_t tam_type, int tam){
     void **matrix = me_memory_alloc(NULL, sizeof(void *)*tam);
     for (int i = 0; i < tam; ++i) {
         matrix[i] = me_memory_alloc(NULL, tam_type*tam);
+        memset(matrix[i], 0, tam_type*tam);
     }
     return matrix;
 }
@@ -26,7 +27,7 @@ void *mop_destroy_matrix(void **matrix, int tam){
 
 char *mop_str_matrix_int(double **matrix, int tam_matrix){
 
-    char *str_matrix = multiply_str("▬", tam_matrix*9-1);
+    char *str_matrix = me_multiply_str("▬", tam_matrix*9-1);
     char *aux = str_matrix;
     str_matrix = me_concat_multiplies_str(3, "\n█", str_matrix, "█\n");
     me_free(aux);
@@ -51,7 +52,7 @@ char *mop_str_matrix_int(double **matrix, int tam_matrix){
         me_free(aux2);
         me_free(aux);
     }
-    aux = multiply_str("▬", tam_matrix*9-1);
+    aux = me_multiply_str("▬", tam_matrix*9-1);
     aux2 = str_matrix;
     str_matrix= me_concat_multiplies_str(4, str_matrix, "█",aux, "█");
     me_free(aux);
