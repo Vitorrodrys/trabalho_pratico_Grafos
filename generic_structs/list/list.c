@@ -91,7 +91,7 @@ List *li_break_str_in_list(char *str, char *tok){
     char *token = strtok(str, tok);
     BaseValue *aux;
     while (token){
-        aux = create_base_value(strdup(token), simple_destructor, (void *)me_str_to_str, (void *)strcmp, sizeof(char));
+        aux = create_base_value(strdup(token), simple_destructor, (void *)me_str_str, (void *)strcmp, sizeof(char));
         li_append(list, aux);
         token = strtok(NULL, tok);
     }
