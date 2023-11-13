@@ -14,11 +14,20 @@ me_free_memory((void **)&(pointer))
 void me_free_several_objects(int quantity, ...);
 void me_free_memory(void **ptr);
 void *me_memory_alloc(void *ptr, size_t tam);
-char *me_int_to_str(int number);
 char *me_concat_str(char *str, char *other);
 char *me_concat_multiplies_str(int quantitys, ...);
 char *me_formatted_str(char *control_str, ...);
-char *me_str_to_str(char *str);
 void *simple_destructor(void *data);
-char *multiply_str(char *string, int times);
+char *me_multiply_str(char *string, int times);
+char* me_convert_int_to_str(int number);
+
+int *create_int(int number);
+void *destroy_int(int *number);
+char* me_int_to_str(const int*ptr);
+int me_eq_int(int *ptr, int *ptr2);
+char *create_str(char *str);
+void *destroy_str(char *str);
+char* me_str_str(char *str);
+
+
 #endif //UNTITLED70_MEMORY_H

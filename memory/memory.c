@@ -13,15 +13,6 @@ void *simple_destructor(void *data){
     return NULL;
 }
 
-char *me_int_to_str(int number){
-    return me_formatted_str("%d", number);
-}
-char *me_str_to_str(char *str){
-    return me_formatted_str("\"%s\"\n", str);
-}
-
-
-
 void *me_memory_alloc(void *ptr, size_t tam){
 
     void *ptr_reall = realloc(ptr, tam);;
@@ -101,7 +92,10 @@ char *me_concat_multiplies_str(int quantitys, ...){
     return result;
 }
 
-char *multiply_str(char *string, int times){
+char* me_convert_int_to_str(int number){
+    return me_formatted_str("%d", number);
+}
+char *me_multiply_str(char *string, int times){
 
     if (!times){
         return strdup("");
@@ -116,3 +110,34 @@ char *multiply_str(char *string, int times){
     return product;
 
 }
+
+
+
+
+int *create_int(int number){
+    int *ptr = me_memory_alloc(NULL, sizeof(int));
+    *ptr = number;
+    return ptr;
+}
+void *destroy_int(int *number){
+    me_free(number);
+    return NULL;
+}
+char* me_int_to_str(const int*ptr){
+    return me_formatted_str("\"%d\"",*ptr );
+}
+int me_eq_int(int *ptr, int *ptr2){
+    return *ptr == *ptr2;
+}
+
+char *create_str(char *str){
+    return strdup(str);
+}
+void *destroy_str(char *str){
+    me_free(str);
+    return NULL;
+}
+char* me_str_str(char *str){
+    return me_formatted_str("\"%s\"", str);
+}
+
