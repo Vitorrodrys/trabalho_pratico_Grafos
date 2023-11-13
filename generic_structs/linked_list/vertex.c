@@ -19,8 +19,18 @@ Vertex *destroy_vertex(Vertex *self){
     me_free(self);
     return NULL;
 }
+Vertex *destroy_vertex_without_destroy_value(Vertex *self){
+    self->next = NULL;
+    self->data = NULL;
+    me_free(self);
+    return NULL;
+}
 Vertex *vt_get_next(Vertex *self){
     return self->next;
+}
+
+BaseValue *vt_get_base_value(Vertex *self){
+    return self->data;
 }
 
 int vt_find_element(Vertex *self, BaseValue *data){
@@ -41,14 +51,14 @@ void *vt_get_data(Vertex *self, int index){
     }
     return bv_get_data(self->data);
 }
-void vt_remove_element_lk(Vertex **self, int index){
+void vt_remove_element_lk(Vertex **self, Vertex **last,int index, Vertex *(*destroyer)(Vertex *self)){
 
     Vertex *aux = *self;
     Vertex *element_removed;
     if ( index == 0 ){
         element_removed = *self;
         *self = vt_get_next(*self);
-        element_removed = destroy_vertex(element_removed);
+        element_removed = destroyer(element_removed);
         return;
 
     }
@@ -57,8 +67,11 @@ void vt_remove_element_lk(Vertex **self, int index){
     }
 
     element_removed = vt_get_next(aux);
+    if ( element_removed == *last ){
+        *last = aux;
+    }
     aux->next = vt_get_next(aux->next);
-    element_removed = destroy_vertex(element_removed);
+    element_removed = destroyer(element_removed);
 }
 
 Vertex *vt_add_element(Vertex *self, BaseValue *data, int index){
