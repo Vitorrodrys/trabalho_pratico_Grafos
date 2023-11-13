@@ -5,6 +5,9 @@
 #ifndef TRABALHO_PRATICO_GRAFOS_BASE_VALUE_H
 #define TRABALHO_PRATICO_GRAFOS_BASE_VALUE_H
 #include <stdlib.h>
+#define bv_get_data_convert(base_value_self, type) \
+((type)bv_get_data(base_value_self))
+
 typedef struct BaseValue BaseValue;
 BaseValue *create_base_value(void *data, void *(*destructor)(void *), char *(*in_str)(void *), int (*eq)(void *, void *), size_t size_data);
 BaseValue *destroy_base_value(BaseValue *self);
