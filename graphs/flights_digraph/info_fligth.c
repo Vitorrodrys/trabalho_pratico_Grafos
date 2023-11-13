@@ -12,6 +12,10 @@ typedef struct InfoFligth{
     TimeHour *duration;
 }InfoFligth;
 
+size_t if_get_tam(){
+    return sizeof(InfoFligth);
+}
+
 InfoFligth *sum_info_fligths(InfoFligth *self, InfoFligth *other){
 
     InfoFligth *sum = me_memory_alloc(NULL, sizeof(InfoFligth));
@@ -39,21 +43,31 @@ InfoFligth *diff_info_fligths(InfoFligth *self, InfoFligth *other){
     return diff;
 }
 
-InfoFligth* create_info_fligth(int number_fligh, double dist, int stop_number, char *departure_time, char *arrival_time){
+InfoFligth* create_info_fligth(int number_fligth, double dist, int stop_number, char *departure_time, char *arrival_time){
 
     InfoFligth *new = me_memory_alloc(NULL, sizeof(InfoFligth));
     TimeHour *departure_tm = create_time_hour_with_str(departure_time);
     TimeHour *arrival_tm = create_time_hour_with_str(arrival_time);
 
     *new = (InfoFligth){
-        .number_fligh = number_fligh,
+        .number_fligh = number_fligth,
         .dist = dist,
         .stop_number = stop_number,
         .duration = tm_diff_times(arrival_tm, departure_tm)
     };
 
     return new;
+}
+InfoFligth *create_info_fligth_with_time_duration(int number_fligth, double dist, int stop_number, TimeHour *duration){
 
+    InfoFligth *new = me_memory_alloc(NULL, sizeof(InfoFligth));
+    *new = (InfoFligth){
+        .duration = duration,
+        .dist = dist,
+        .stop_number = stop_number,
+        .number_fligh = number_fligth
+    };
+    return new;
 }
 InfoFligth *destroy_info_fligth(InfoFligth *self){
     self->duration = destroy_time_hour(self->duration);
@@ -64,8 +78,28 @@ InfoFligth *destroy_info_fligth(InfoFligth *self){
 
 char *if_str(InfoFligth *self){
     char *duration_str = tm_str(self->duration);
-    char *respost = me_formatted_str("duration: %s\nnumber fligth: %d\ndist:%f\nstop number: %d", duration_str, self->number_fligh, self->dist, self->stop_number);
+    char *respost = me_formatted_str("du: %s | nf: %d | dt:%.2f | sn: %d ", duration_str, self->number_fligh, self->dist, self->stop_number);
     me_free(duration_str);
     return respost;
 }
+InfoFligth * if_create_cp(InfoFligth *self){
 
+    return create_info_fligth_with_time_duration(self->number_fligh, self->dist, self->stop_number, tm_cp(self->duration));
+}
+int if_eq(InfoFligth *self, InfoFligth *other){
+    return
+    self->stop_number == other->stop_number && self->dist == other->dist &&
+    self->number_fligh == other->number_fligh && tm_eq(self->duration, other->duration);
+}
+
+int if_bigger_then(InfoFligth *self, InfoFligth *other){
+    return
+    self->stop_number > other->stop_number && self->dist > other->dist &&
+    tm_bigger_then(self->duration, other->duration);
+}
+
+int if_less_then(InfoFligth *self, InfoFligth *other){
+    return
+    self->stop_number < other->stop_number && self->dist < other->dist &&
+    tm_less_then(self->duration, other->duration);
+}
