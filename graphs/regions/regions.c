@@ -74,7 +74,7 @@ typedef struct Regions{
     int quantity_aeroports;
 }Regions;
 
-InfoAeroports *ifa_get_info_aeroport(Regions *self, char *alias){
+InfoAeroports *re_get_info_aeroport(Regions *self, char *alias){
 
     InfoAeroports *aeroport = map_get_value(self->aeroports, alias);
     return aeroport;
@@ -98,7 +98,7 @@ char *_get_alias_region_in_file(CurrentFile *file){
 Regions *create_regions(CurrentFile *file){
 
     Regions *new = me_memory_alloc(NULL, sizeof(Regions));
-    new->aeroports = create_map(13, NULL);
+    new->aeroports = create_map(DEFAULT_SIZE_VECTOR_COLISION, NULL);
     new->quantity_aeroports=0;
 
     pf_advance_to_word(file, "!regions");
