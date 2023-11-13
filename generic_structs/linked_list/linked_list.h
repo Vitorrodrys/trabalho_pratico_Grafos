@@ -18,4 +18,5 @@ void lkl_set_element(LinkedList *self, int index, BaseValue *value);
 int lkl_is_void(LinkedList *self);
 int lkl_get_index_element(LinkedList *self, BaseValue *data);
 int lkl_get_tam(LinkedList *self);
+BaseValue *lkl_pop(LinkedList *self);
 #endif //TRABALHO_PRATICO_GRAFOS_LINKED_LIST_H

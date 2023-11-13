@@ -25,8 +25,10 @@ LinkedList *create_linked_list(){
 
 LinkedList *destroy_lkl(LinkedList *self){
 
-    for (int i = self->quantity-1; i >=0; --i) {
-         lkl_rm_element(self, i);
+
+    int cp_quantity = self->quantity;
+    for (int i = 0; i <cp_quantity; ++i) {
+         lkl_rm_element(self, 0);
     }
     self->first = NULL;
     self->last = NULL;
@@ -58,7 +60,7 @@ void lkl_rm_element(LinkedList *self, int index){
         return;
     }
 
-    vt_remove_element_lk(&self->first, index);
+    vt_remove_element_lk(&self->first, &self->last,index, destroy_vertex);
     if ( !self->first ){
         self->last = NULL;
     }
@@ -75,7 +77,7 @@ void lkl_set_element(LinkedList *self, int index, BaseValue *value){
     if ( index >= self->quantity ){
         return;
     }
-    vt_remove_element_lk(&self->first, index);
+    vt_remove_element_lk(&self->first, &self->last,index, destroy_vertex);
     self->first= vt_add_element(self->first, value, index);
 }
 void lkl_append(LinkedList *self, BaseValue *data){
@@ -89,6 +91,16 @@ void lkl_append(LinkedList *self, BaseValue *data){
     vt_add_element(self->last, data, 1);
     self->last = vt_get_next(self->last);
     self->quantity++;
+
+}
+BaseValue *lkl_pop(LinkedList *self){
+    BaseValue *data = vt_get_base_value(self->last);
+    vt_remove_element_lk(&self->first, &self->last,self->quantity-1, destroy_vertex_without_destroy_value);
+    if ( self->first == NULL ){
+        self->last = NULL;
+    }
+    self->quantity--;
+    return data;
 
 }
 int lkl_is_void(LinkedList *self){
