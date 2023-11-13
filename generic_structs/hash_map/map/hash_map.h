@@ -2,6 +2,8 @@
 #define HASH_MAP_H
 #include "../key_value/key_value.h"
 #include "../iterator/iterator_hash.h"
+
+#define DEFAULT_SIZE_VECTOR_COLISION 104729
 typedef struct Map Map;
 
 int map_get_index_key(Map *self, const char *key);

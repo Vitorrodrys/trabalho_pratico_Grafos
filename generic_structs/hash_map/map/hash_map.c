@@ -92,6 +92,10 @@ KeyValue *map_next(Map *self, ItHash *iterator){
 
     int current_index_vector = ith_get_current_index_vector(iterator);
     int current_index_sublist = ith_get_current_index_sublist(iterator);
+
+    if ( current_index_vector >= self->tam_vector ){
+        return NULL;
+    }
     KeyValue *element = colist_get_element_by_index(self->vector[current_index_vector], current_index_sublist);
     if( element == NULL ){
         int index_vector = current_index_vector+1;
