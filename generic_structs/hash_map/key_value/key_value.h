@@ -17,5 +17,6 @@ const char *kv_get_key(KeyValue *self);
 KeyValue *create_key_value(const char *key, BaseValue *value);
 int kv_is_this_element(KeyValue *self, KeyValue *other);
 void *destroy_kv(KeyValue *self);
+int kv_eq(KeyValue *self, KeyValue *other);
 char* kv_str(KeyValue *self);
 #endif //UNTITLED70_KEY_VALUE_H

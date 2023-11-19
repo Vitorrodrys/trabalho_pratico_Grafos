@@ -72,3 +72,11 @@ int count_number_of_edges(void *vector, int tam, size_t size_type){
     }
     return count;
 }
+
+void *mop_remove_a_vertex(void **vector, int index, int tam){
+
+    for (int i = index+1; i < tam; ++i) {
+        vector[i-1] = vector[i];
+    }
+    return me_memory_alloc(vector, sizeof(void *)*(tam-1));
+}

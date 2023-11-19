@@ -17,4 +17,7 @@ void grt_add_edge(GraphRoutes *self, int from, int to, double dist);
 void grt_remove_edge(GraphRoutes *self, int from, int to);
 char* grt_str(GraphRoutes *self);
 RespostSearch *grt_bfs(GraphRoutes *self, int from);
+double grt_get_dist_betwen_aeroports(GraphRoutes *self, int from, int to);
+int grt_exist_this_edge(GraphRoutes *self, int from, int to);
+LinkedList *grt_get_vertex_that_not_has_way(GraphRoutes *self, int from);
 #endif //TRABALHO_PRATICO_GRAFOS_GRAPH_ROUTES_H

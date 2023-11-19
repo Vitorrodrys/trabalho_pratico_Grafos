@@ -46,7 +46,7 @@ long calend_to_seconds(Calendar *self){
 }
 
 char *calend_str(Calendar *self){
-    return me_formatted_str("(d:%d, hr:%d, mn: %d, sg: %d)", self->day, self->hour, self->min, self->seg);
+    return me_formatted_str("%d days, %02d:%02d:%02d", self->day, self->hour, self->min, self->seg);
 }
 
 Calendar * calend_cp(Calendar *self){

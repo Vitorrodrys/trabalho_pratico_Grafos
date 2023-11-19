@@ -6,6 +6,7 @@
 #define TRABALHO_PRATICO_GRAFOS_FLIGHTS_DIGRAPH_H
 #include "../../parser_file/parser_file.h"
 #include "info_fligth.h"
+#include "../searchs/dijkstra.h"
 #include "../../generic_structs/linked_list/linked_list.h"
 
 
@@ -19,4 +20,7 @@ void fldgp_add_new_arest(FlightsDigraph *self, int from, int to, InfoFligth *val
 void fldgp_remove_one_arest(FlightsDigraph *self, int from, int to);
 char *fldgp_str(FlightsDigraph *self);
 LinkedList *fldgp_get_direct_fligths_from(FlightsDigraph *self, int from);
+size_t lkl_get_size();
+Dijkstra *fldgp_dijkstra_find_less_distance(FlightsDigraph *self, int which_vertex);
+Dijkstra *fldgp_dijkstra_find_less_duration(FlightsDigraph *self, int which_vertex);
 #endif //TRABALHO_PRATICO_GRAFOS_FLIGHTS_DIGRAPH_H

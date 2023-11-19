@@ -12,6 +12,10 @@ typedef struct TimeHour{
     Calendar *in_data;
 }TimeHour;
 
+time_t module_seg(time_t seg){
+    return ((long int )seg < 0)?seg*-1:seg;
+}
+
 
 TimeHour *create_time_hour_with_str(char *str){
 
@@ -40,40 +44,47 @@ TimeHour *create_time_hour_with_seconds(time_t seconds){
     return new;
 
 }
+void add_time(TimeHour *self, time_t tm){
+    self->in_seconds += tm;
+    self->in_data = destroy_calendar(self->in_data);
+    self->in_data = seconds_to_calend(self->in_seconds);
+}
+void tm_add_one_day(TimeHour *self){
+    add_time(self, 86400);
+}
+void tm_add_one_hour(TimeHour *self){
+    add_time(self, 3600);
+}
+
+
 void tm_set_new_hour_with_str(TimeHour *self, char *str){
 
-    char *hour = strndup(str, 2);
-    char *min;
-    int hour_int;
-    int min_int;
-    if (atoi(hour) > 12 ){
-        me_free_memory((void *)&hour);
-        hour = strndup(str, 1);
-        min = strndup(str+1, 2);
-        hour_int = atoi(hour) +  ((str[3] == 'P')?12:0);
-        me_free(hour);
-    }else{
 
-        int size_char_mins = (isdigit(str[3])?2:1);
-        min = strndup(str+2, size_char_mins);
-        hour_int = atoi(hour) + ((str[2+size_char_mins] == 'P')?12:0);
-        me_free(hour);
+    size_t tam_str = strlen(str);
+    int hours;
+    int min;
+    char *hours_temp;
+    char *mins_temp;
+    int len_char_hours = (tam_str%2 == 0)?1:2;
+
+    hours_temp = strndup(str, len_char_hours);
+    mins_temp = strndup(str+len_char_hours, 2);
+
+    hours = atoi(hours_temp);
+    min = atoi(mins_temp);
+    me_free_several_objects(2, &hours_temp, &mins_temp);
+    hours+=((str[tam_str-1] == 'P')?12:0);
+    if ( hours == 24 ){
+        hours = 0;
     }
-
-    min_int = atoi(min);
-    me_free(min);
-    if ( self->in_data ){
+    if ( self->in_data )
         self->in_data = destroy_calendar(self->in_data);
-    }
-    self->in_data = create_calendar(0, hour_int, min_int,0);
+    self->in_data = create_calendar(0,hours, min, 0);
     self->in_seconds = calend_to_seconds(self->in_data);
 }
 void tm_set_new_time_hour_with_seconds(TimeHour *self, time_t seconds){
-
     self->in_seconds = seconds;
     self->in_data = seconds_to_calend(seconds);
-
-
 }
 char *tm_str(TimeHour *self){
     return calend_str(self->in_data);

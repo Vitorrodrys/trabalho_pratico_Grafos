@@ -12,6 +12,12 @@ typedef struct LinkedList{
     int quantity;
 }LinkedList;
 
+
+BaseValue *_get_bv(Vertex *self, int index);
+
+size_t lkl_get_size(){
+    return sizeof(LinkedList);
+}
 LinkedList *create_linked_list(){
 
     LinkedList *new = me_memory_alloc(NULL, sizeof(LinkedList));
@@ -88,6 +94,7 @@ void lkl_append(LinkedList *self, BaseValue *data){
         self->quantity++;
         return;
     }
+    //
     vt_add_element(self->last, data, 1);
     self->last = vt_get_next(self->last);
     self->quantity++;
@@ -103,6 +110,7 @@ BaseValue *lkl_pop(LinkedList *self){
     return data;
 
 }
+
 int lkl_is_void(LinkedList *self){
     return !self->quantity;
 }
@@ -111,4 +119,20 @@ int lkl_get_index_element(LinkedList *self, BaseValue *data){
 }
 int lkl_get_tam(LinkedList *self){
     return self->quantity;
+}
+
+LinkedList *lkl_concat_lists(LinkedList *self, LinkedList *other){
+
+    LinkedList *list = create_linked_list();
+
+    BaseValue *current_value;
+    for (int i = 0; i < self->quantity; ++i) {
+        current_value = _get_bv(self->first, i);
+        lkl_append(list, current_value);
+    }
+    for (int i = 0; i < other->quantity; ++i) {
+        current_value = _get_bv(other->first, i);
+        lkl_append(list, current_value);
+    }
+    return list;
 }

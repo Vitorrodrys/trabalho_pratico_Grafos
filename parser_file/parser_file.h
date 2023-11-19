@@ -14,6 +14,6 @@ long int pf_get_next_int(CurrentFile *self);
 double pf_get_next_double(CurrentFile *self);
 int pf_advance_to_word(CurrentFile *self, char *word);
 void pf_return_to_file_start(CurrentFile *self);
-void destroy_parser(CurrentFile *self);
+CurrentFile *destroy_parser(CurrentFile *self);
 int pf_is_end_file(CurrentFile *self);
 #endif

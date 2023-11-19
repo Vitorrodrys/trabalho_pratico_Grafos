@@ -6,7 +6,6 @@
 #define UNTITLED70_MEMORY_H
 #include <stdlib.h>
 #include <string.h>
-
 #define me_free(pointer) \
 me_free_memory((void **)&(pointer))
 
@@ -20,6 +19,11 @@ char *me_formatted_str(char *control_str, ...);
 void *simple_destructor(void *data);
 char *me_multiply_str(char *string, int times);
 char* me_convert_int_to_str(int number);
+void me_swap(void *value, void *other_value, size_t size_bytes);
+double *create_double(double data);
+char *me_double_to_str(double *ptr);
+double *destroy_double(double *ptr);
+
 
 int *create_int(int number);
 void *destroy_int(int *number);

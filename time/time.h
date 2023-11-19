@@ -19,4 +19,6 @@ TimeHour *tm_cp(TimeHour *self);
 int tm_eq(TimeHour *self, TimeHour *other);
 int tm_bigger_then(TimeHour *self, TimeHour *other);
 int tm_less_then(TimeHour *self, TimeHour *other);
+void tm_add_one_day(TimeHour *self);
+void tm_add_one_hour(TimeHour *self);
 #endif //TRABALHO_PRATICO_GRAFOS_TIME_H

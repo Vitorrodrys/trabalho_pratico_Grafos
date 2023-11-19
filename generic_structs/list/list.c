@@ -34,7 +34,7 @@ void li_append(List *self, BaseValue *element){
     self->data = me_memory_alloc(self->data, sizeof(void *)*self->current_size);
     self->data[self->current_size-1] = element;
 }
-void *li_remove_element(List *self, int index){
+BaseValue *li_remove_element(List *self, int index){
 
     void *element_remove;
     if ( index >= self->current_size  ){
@@ -96,4 +96,20 @@ List *li_break_str_in_list(char *str, char *tok){
         token = strtok(NULL, tok);
     }
     return list;
+}
+void li_swap_elements(List *self, int index1, int index2){
+
+    if ( index1 >= self->current_size || index2 >= self->current_size ){
+        return;
+    }
+    me_swap(self->data+index1, self->data+index2, sizeof(void *));
+}
+
+void li_insert(List *self, BaseValue *value, int index){
+    self->current_size++;
+    self->data = me_memory_alloc(self->data, sizeof(void *)*self->current_size);
+    for (int i = index+1; i < self->current_size; ++i) {
+        self->data[i] = self->data[i-1];
+    }
+    self->data[index] = value;
 }

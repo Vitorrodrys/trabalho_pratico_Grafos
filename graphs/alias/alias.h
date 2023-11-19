@@ -14,7 +14,7 @@ Alias *create_alias();
 Alias *destroy_alias(Alias *self);
 void alias_add_alias(Alias *self, char *name_alias);
 int alias_remove_alias(Alias *self, char *name_alias);
-int alias_get_number_by_alias(Alias *self, char *name_alias);
+int alias_get_number_by_alias(Alias *self, const char *name_alias);
 char *alias_get_alias_by_number(Alias *self, int number);
 char* alias_str(Alias *self);
 ItHash *alias_create_iterator_alias(Alias *self);

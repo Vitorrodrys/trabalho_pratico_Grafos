@@ -3,14 +3,16 @@
 #include "../key_value/key_value.h"
 #include "../iterator/iterator_hash.h"
 
-#define DEFAULT_SIZE_VECTOR_COLISION 104729
+#define DEFAULT_SIZE_VECTOR_COLISION 13
+#include <stdint.h>
+
 typedef struct Map Map;
 
-int map_get_index_key(Map *self, const char *key);
-Map *create_map(int tam_vector, int (*f_hash)(const char *));
+Map *create_map(uint64_t tam_vector, uint64_t (*f_hash)(const char *));
 void map_add_key(Map *self, KeyValue*key_value);
 void map_remove_key(Map *self, char *key);
-void *map_get_value(Map *self, char *key);
+void *map_get_value(Map *self, const char *key);
+int map_eq(Map *self, Map *other);
 void map_att_key(Map *self, KeyValue *new_kv);
 char* map_str(Map *self);
 KeyValue *map_next(Map *self, ItHash *iterator);

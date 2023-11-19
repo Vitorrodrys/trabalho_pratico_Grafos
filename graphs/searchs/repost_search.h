@@ -16,4 +16,6 @@ int res_queue_is_void(RespostSearch *self);
 int res_elem_still_not_visited(RespostSearch *self, int elem);
 char *res_str(RespostSearch *self);
 LinkedList *res_mount_way_by_vertex(RespostSearch *self, int what_vertex);
+int res_exist_a_way_to_vertex(RespostSearch *self, int vertex);
+int res_check_if_middle_path_contains_vertex(RespostSearch *self, int half_vertex, int to);
 #endif //TRABALHO_PRATICO_GRAFOS_REPOST_SEARCH_H

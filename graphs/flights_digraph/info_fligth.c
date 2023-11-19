@@ -10,6 +10,7 @@ typedef struct InfoFligth{
     double dist;
     int stop_number;
     TimeHour *duration;
+
 }InfoFligth;
 
 size_t if_get_tam(){
@@ -49,6 +50,10 @@ InfoFligth* create_info_fligth(int number_fligth, double dist, int stop_number, 
     TimeHour *departure_tm = create_time_hour_with_str(departure_time);
     TimeHour *arrival_tm = create_time_hour_with_str(arrival_time);
 
+    if (tm_less_then(arrival_tm, departure_tm) ){
+        tm_add_one_day(arrival_tm);
+    }
+
     *new = (InfoFligth){
         .number_fligh = number_fligth,
         .dist = dist,
@@ -78,12 +83,11 @@ InfoFligth *destroy_info_fligth(InfoFligth *self){
 
 char *if_str(InfoFligth *self){
     char *duration_str = tm_str(self->duration);
-    char *respost = me_formatted_str("du: %s | nf: %d | dt:%.2f | sn: %d ", duration_str, self->number_fligh, self->dist, self->stop_number);
+    char *respost = me_formatted_str("duration: %s | number fligth: %d | dist:%.2f | stop number: %d ", duration_str, self->number_fligh, self->dist, self->stop_number);
     me_free(duration_str);
     return respost;
 }
-InfoFligth * if_create_cp(InfoFligth *self){
-
+InfoFligth* if_create_cp(InfoFligth *self){
     return create_info_fligth_with_time_duration(self->number_fligh, self->dist, self->stop_number, tm_cp(self->duration));
 }
 int if_eq(InfoFligth *self, InfoFligth *other){
@@ -92,14 +96,32 @@ int if_eq(InfoFligth *self, InfoFligth *other){
     self->number_fligh == other->number_fligh && tm_eq(self->duration, other->duration);
 }
 
-int if_bigger_then(InfoFligth *self, InfoFligth *other){
+int if_bigger_then_in_duration(InfoFligth *self, InfoFligth *other){
     return
-    self->stop_number > other->stop_number && self->dist > other->dist &&
     tm_bigger_then(self->duration, other->duration);
 }
 
-int if_less_then(InfoFligth *self, InfoFligth *other){
+int if_bigger_then_in_dist(InfoFligth *self, InfoFligth *other){
+    return self->dist > other->dist;
+}
+int if_less_then_in_duration(InfoFligth *self, InfoFligth *other){
     return
-    self->stop_number < other->stop_number && self->dist < other->dist &&
     tm_less_then(self->duration, other->duration);
+}
+int if_less_then_in_dist(InfoFligth *self, InfoFligth*other){
+    return
+    self->dist < other->dist;
+}
+InfoFligth *if_sum_fligths(InfoFligth *self, InfoFligth *other){
+
+    return create_info_fligth_with_time_duration(
+            FAKEFLIGTH,
+            self->dist + other->dist,
+            self->stop_number + other->stop_number,
+            tm_sum_times(self->duration, other->duration)
+            );
+}
+
+int ifa_get_number_fligth(InfoFligth *self){
+    return self->number_fligh;
 }

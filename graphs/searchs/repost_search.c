@@ -9,18 +9,29 @@
 #include <stdio.h>
 
 
-typedef enum mark_visiteds{
+typedef enum MarkVisiteds{
     already_visited, no_visited, visiting
-}mark_visiteds;
+}MarkVisiteds;
 
 
+char *mark_visiteds_to_str(MarkVisiteds mark){
+    switch (mark) {
+
+        case already_visited:
+            return me_formatted_str("%s", "visited");
+        case no_visited:
+            return me_formatted_str("%s", "no visited");
+        case visiting:
+            return me_formatted_str("%s", "visiting");
+    }
+}
 
 typedef struct RespostSearch{
     int tam_graph;
     int which_vertex;
     double *dists;
     int *pass_by;
-    mark_visiteds *visitados;
+    MarkVisiteds *visiteds;
     LinkedList *queue_vertex;
 }RespostSearch;
 
@@ -43,11 +54,11 @@ RespostSearch * create_respost(int tam_graph, int which_vertex){
 
 
     //set that I don't visited any unless the I self
-    new->visitados = me_memory_alloc(NULL, sizeof (mark_visiteds)*tam_graph);
+    new->visiteds = me_memory_alloc(NULL, sizeof (MarkVisiteds)*tam_graph);
     for (int i = 0; i < tam_graph; ++i) {
-        new->visitados[i] = no_visited;
+        new->visiteds[i] = no_visited;
     }
-    new->visitados[which_vertex] = visiting;
+    new->visiteds[which_vertex] = visiting;
 
     //create the queue
     new->queue_vertex = create_linked_list();
@@ -61,7 +72,7 @@ RespostSearch * create_respost(int tam_graph, int which_vertex){
 
 RespostSearch *destroy_respost(RespostSearch *self){
 
-    me_free_several_objects(3, &self->dists, &self->visitados, &self->pass_by);
+    me_free_several_objects(3, &self->dists, &self->visiteds, &self->pass_by);
     self->queue_vertex = destroy_lkl(self->queue_vertex);
     self->tam_graph = 0;
     self->which_vertex = 0;
@@ -76,7 +87,7 @@ int res_to_visite_element(RespostSearch *self, int from, int to, double dist){
     }
 
     self->pass_by[to] = from;
-    self->visitados[to] = visiting;
+    self->visiteds[to] = visiting;
     self->dists[to] = self->dists[from] + dist;
     BaseValue *new_element = create_base_value(
             create_int(to), (void *)destroy_int,
@@ -90,7 +101,7 @@ int res_get_next_vertex_queue(RespostSearch *self){
 
     int elem = *(int *)lkl_get_data(self->queue_vertex,0);
     lkl_rm_element(self->queue_vertex, 0);
-    self->visitados[elem] = already_visited;
+    self->visiteds[elem] = already_visited;
     return elem;
 }
 
@@ -98,7 +109,7 @@ int res_queue_is_void(RespostSearch *self){
     return lkl_is_void(self->queue_vertex);
 }
 int res_elem_still_not_visited(RespostSearch *self, int elem){
-    return self->visitados[elem] == no_visited;
+    return self->visiteds[elem] == no_visited;
 }
 char* res_str(RespostSearch *self){
 
@@ -120,11 +131,23 @@ char* res_str(RespostSearch *self){
     }
     aux = result;
     result = me_formatted_str("%s%d. \n", result, self->pass_by[self->tam_graph-1]);
+    aux = result;
+    result = me_formatted_str("%svisiteds:\n\t", result);
+    me_free(aux);
+    for (int i = 0; i < self->tam_graph-1; ++i) {
+
+        aux = result;
+        result = me_formatted_str("%s%s, ", mark_visiteds_to_str(self->visiteds[i]));
+        me_free(aux);
+    }
+    aux = result;
+    result = me_formatted_str("%s%s\n", mark_visiteds_to_str(self->visiteds[self->tam_graph-1]));
     return result;
 }
 
 LinkedList *res_mount_way_by_vertex(RespostSearch *self, int what_vertex){
 
+    double dist = self->dists[what_vertex];
     LinkedList *way = create_linked_list();
     BaseValue *current_stacked_value = create_base_value(
             create_int(what_vertex), (void *)destroy_int, (void *)me_int_to_str,
@@ -132,6 +155,10 @@ LinkedList *res_mount_way_by_vertex(RespostSearch *self, int what_vertex){
             );
     lkl_append(way, current_stacked_value);
     int current_vertex = self->pass_by[what_vertex];
+
+    if ( current_vertex == -1 ){
+        return NULL;
+    }
     while ( current_vertex != self->which_vertex ){
 
         current_stacked_value = create_base_value(
@@ -143,5 +170,23 @@ LinkedList *res_mount_way_by_vertex(RespostSearch *self, int what_vertex){
 
         current_vertex = self->pass_by[current_vertex];
     }
+
+    current_stacked_value = create_base_value(create_double(dist), (void *)destroy_double, NULL, NULL, sizeof(double));
+    lkl_append(way, current_stacked_value);
     return way;
+}
+int res_exist_a_way_to_vertex(RespostSearch *self, int vertex){
+    return self->visiteds[vertex] == already_visited;
+}
+int res_check_if_middle_path_contains_vertex(RespostSearch *self, int half_vertex, int to){
+
+    int current_vertex = self->pass_by[to];
+    while (current_vertex != self->which_vertex){
+
+        if ( current_vertex == half_vertex ){
+            return 1;
+        }
+        current_vertex = self->pass_by[current_vertex];
+    }
+    return 0;
 }

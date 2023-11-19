@@ -45,11 +45,14 @@ int vt_find_element(Vertex *self, BaseValue *data){
     }
     return -1;
 }
-void *vt_get_data(Vertex *self, int index){
+BaseValue *_get_bv(Vertex *self, int index){
     for (int i = 0; i < index; ++i) {
         self = vt_get_next(self);
     }
-    return bv_get_data(self->data);
+    return self->data;
+}
+void *vt_get_data(Vertex *self, int index){
+    return bv_get_data(_get_bv(self, index));
 }
 void vt_remove_element_lk(Vertex **self, Vertex **last,int index, Vertex *(*destroyer)(Vertex *self)){
 

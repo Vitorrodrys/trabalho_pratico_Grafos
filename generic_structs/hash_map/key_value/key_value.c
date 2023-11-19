@@ -48,3 +48,14 @@ char* kv_str(KeyValue *self){
     return me_formatted_str("%s:%s, ", self->key,  bv_in_str(self->value));
 }
 
+
+int kv_eq(KeyValue *self, KeyValue *other){
+
+    if ( strcmp( self->key, other->key) ){
+        return 0;
+    }
+    if (bv_equals(self->value, other->value) ){
+        return 0;
+    }
+    return 1;
+}

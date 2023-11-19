@@ -7,7 +7,7 @@
 #include "../map/hash_map.h"
 typedef struct ItHash{
 
-    int current_index_vector;
+    uint64_t current_index_vector;
     int current_index_sublist;
     Map *map;
 }ItHash;
@@ -31,13 +31,13 @@ KeyValue *ith_next(ItHash *self){
     return map_next(self->map, self);
 }
 
-int ith_get_current_index_vector(ItHash *self){
+uint64_t ith_get_current_index_vector(ItHash *self){
     return self->current_index_vector;
 }
 int ith_get_current_index_sublist(ItHash *self){
     return self->current_index_sublist;
 }
-void ith_set_current_index_vector(ItHash *self, int index){
+void ith_set_current_index_vector(ItHash *self, uint64_t index){
     self->current_index_vector = index;
 }
 void ith_set_current_index_sublist(ItHash *self, int index){

@@ -141,3 +141,20 @@ char* me_str_str(char *str){
     return me_formatted_str("\"%s\"", str);
 }
 
+double *create_double(double data){
+    double *ptr= me_memory_alloc(NULL, sizeof(double ));
+    *ptr = data;
+    return ptr;
+}
+
+double *destroy_double(double *ptr){
+    me_free(ptr);
+    return NULL;
+}
+
+void me_swap(void *value, void *other_value, size_t size_bytes){
+    char tmp[size_bytes];
+    memmove(tmp, value, size_bytes);
+    memmove(value, other_value, size_bytes);
+    memmove(other_value, tmp, size_bytes);
+}

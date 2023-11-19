@@ -62,7 +62,7 @@ int alias_remove_alias(Alias *self, char *name_alias){
     self->quantity_alias--;
     return number_return;
 }
-int alias_get_number_by_alias(Alias *self, char *name_alias){
+int alias_get_number_by_alias(Alias *self, const char *name_alias){
 
     int *ptr = (int *)map_get_value(self->alias_name_to_number, name_alias);
     return ptr?*ptr:-1;

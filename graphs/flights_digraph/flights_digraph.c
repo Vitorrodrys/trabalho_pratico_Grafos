@@ -3,26 +3,22 @@
 //
 
 #include "flights_digraph.h"
-#include "../alias/alias.h"
 #include "info_fligth.h"
 #include "../../memory/memory.h"
-#include "../regions/regions.h"
-#include "../../generic_structs/list/list.h"
 #include <stdio.h>
 #include "../matrix_operations/matrix_operations.h"
-
-double calc_dist(int x, int y, int x_l, int y_l);
+#include "../searchs/min_heap/min_heap.h"
 
 typedef struct FlightsDigraph{
     int size_graph;
-    InfoFligth ***graph;
+    MinHeap ***graph;
     int quantity_edge;
 }FlightsDigraph;
 
-char *_get_str_info_fligth(InfoFligth *what){
+char *_get_str_info_fligth(MinHeap *what){
 
-    if ( what ){
-        return if_str(what);
+    if ( mh_get_quantity_elements(what) ){
+        return mh_str(what);
     }
     return strdup(" don't has fligths! ");
 }
@@ -38,8 +34,7 @@ FlightsDigraph *destroy_fligths_digraph(FlightsDigraph *self){
 
     for (int i = 0; i < self->size_graph; ++i) {
         for (int j = 0; j < self->size_graph; ++j) {
-            if (self->graph[i][j])
-                self->graph[i][j] = destroy_info_fligth(self->graph[i][j]);
+            self->graph[i][j] = destroy_min_heap(self->graph[i][j]);
         }
         me_free(self->graph[i]);
     }
@@ -53,57 +48,44 @@ FlightsDigraph *destroy_fligths_digraph(FlightsDigraph *self){
 void fldgp_add_new_vertex(FlightsDigraph *self){
 
     self->size_graph++;
-    self->graph = me_memory_alloc(self->graph, sizeof(InfoFligth **) * self->size_graph);
+    self->graph = me_memory_alloc(self->graph, sizeof(MinHeap **) * self->size_graph);
     self->graph[self->size_graph - 1] = NULL;
-    for (int i = 0; i < self->size_graph; ++i) {
-        self->graph[i] = me_memory_alloc(self->graph[i], sizeof(InfoFligth *) * self->size_graph);
-        self->graph[i][self->size_graph - 1] = NULL;
+    for (int i = 0; i < self->size_graph-1; ++i) {
+        self->graph[i] = me_memory_alloc(self->graph[i], sizeof(MinHeap *) * self->size_graph);
+        self->graph[i][self->size_graph - 1] = create_min_heap();
     }
-    memset(self->graph[self->size_graph-1], 0, sizeof(InfoFligth *)*self->size_graph);
+    self->graph[self->size_graph-1] = me_memory_alloc(self->graph[self->size_graph-1], sizeof(MinHeap*)*self->size_graph);
+    for (int i = 0; i < self->size_graph; ++i) {
+
+        self->graph[self->size_graph-1][i] = create_min_heap();
+    }
 }
 void fldgp_del_vertex(FlightsDigraph *self, int vertex){
 
-    InfoFligth ***temp = mop_create_matrix(sizeof(InfoFligth *), self->size_graph-1);
-
-    int i_temp = 0;
-    int j_temp;
     for (int i = 0; i < self->size_graph; ++i) {
-        if (i == vertex) {
-            self->quantity_edge-= count_number_of_edges(self->graph[i], self->size_graph, sizeof(InfoFligth*));
-            for (int j_r = 0; j_r < self->size_graph; ++j_r) {
-                if (self->graph[i][j_r]) {
-                    self->graph[i][j_r] = destroy_info_fligth(self->graph[i][j_r]);
-                }
-            }
-            continue;
+        if (i != vertex) {
+            self->graph[i][vertex] = destroy_min_heap(self->graph[i][vertex]);
+            self->graph[i] = mop_remove_a_vertex((void *) self->graph[i], vertex, self->size_graph);
+            self->quantity_edge--;
         }
-        j_temp = 0;
-        for (int j = 0; j <self->size_graph; ++j) {
-
-            if(j==vertex) {
-                self->quantity_edge--;
-                if (self->graph[i][j]) {
-                    self->graph[i][j] = destroy_info_fligth(self->graph[i][j]);
-                }
-                continue;
-            }
-            temp[i_temp][j_temp] = self->graph[i][j];
-            j_temp++;
-        }
-        i_temp++;
-
     }
+    for (int i = 0; i < self->size_graph; ++i) {
+        self->quantity_edge -= count_number_of_edges(self->graph[vertex], self->size_graph, sizeof(void *));
+        self->graph[vertex][i] = destroy_min_heap(self->graph[vertex][i]);
+    }
+    me_free(self->graph[vertex]);
+    self->graph = mop_remove_a_vertex((void *)self->graph, vertex, self->size_graph);
     self->size_graph--;
-    self->graph = mop_destroy_matrix((void *)self->graph, self->size_graph);
-    self->graph = temp;
+
 }
 void fldgp_add_new_arest(FlightsDigraph *self, int from, int to, InfoFligth *value_arest){
-    self->graph[from][to] = value_arest;
+    mh_append_element(self->graph[from][to], value_arest);
     self->quantity_edge++;
 }
 void fldgp_remove_one_arest(FlightsDigraph *self, int from, int to){
-    self->graph[from][to] = destroy_info_fligth(self->graph[from][to]);
-    self->quantity_edge--;
+    self->quantity_edge-= mh_get_quantity_elements(self->graph[from][to]);
+    self->graph[from][to] = destroy_min_heap(self->graph[from][to]);
+
 }
 char *fldgp_str(FlightsDigraph *self){
 
@@ -137,31 +119,71 @@ char *fldgp_str(FlightsDigraph *self){
 
 LinkedList *fldgp_get_direct_fligths_from(FlightsDigraph *self, int from){
 
-    LinkedList *respost = create_linked_list();
-    BaseValue *current_value;
+    LinkedList *direct_fligths = create_linked_list();
+    LinkedList *fligths_direct_to_vertex;
+    InfoFligth *current_fligth;
     for (int i = 0; i < self->size_graph; ++i) {
-        if (self->graph[from][i]) {
-            current_value = create_base_value(
-                    create_int(i),
-                    (void *)destroy_int,
-                    (void *)me_int_to_str,
-                    (void *) me_eq_int,
-                    sizeof(int)
-                    );
-            lkl_append(respost, current_value);
 
-            current_value = create_base_value(
-                    if_create_cp(self->graph[from][i]),
-                    (void *)destroy_info_fligth,
-                    (void *)if_str,
-                    (void *)if_eq,
-                    if_get_tam()
-            );
-            lkl_append(respost, current_value);
+        fligths_direct_to_vertex = create_linked_list();
+
+        for (int j = 0; j < mh_get_quantity_elements(self->graph[from][i]); ++j) {
+
+            current_fligth = mh_get_element(self->graph[from][i], j);
+            lkl_append(
+                    fligths_direct_to_vertex,
+                    create_base_value(
+                            current_fligth,
+                            (void *)destroy_info_fligth,
+                            (void *)if_str,
+                            (void *)if_eq,
+                            if_get_tam()
+                            )
+                    );
         }
+        lkl_append(
+                direct_fligths,
+                create_base_value(
+                        fligths_direct_to_vertex,
+                        (void *)destroy_lkl,
+                        NULL,
+                        NULL,
+                        lkl_get_size()
+                        )
+                );
+
     }
-    return respost;
+    return direct_fligths;
+}
+
+Dijkstra * generate_dijkstra(FlightsDigraph *self, int which_vertex, int (*if_compare_less)(InfoFligth *self, InfoFligth *other)){
+
+    Dijkstra *dj = create_dijkstra(self->size_graph, which_vertex, if_compare_less);
+    int less_vertex;
+    InfoFligth *less_arest;
+    while( dij_there_are_open_vertex(dj) ){
+
+        less_vertex = dij_find_less_vertex(dj);
+        dij_close_this_vertex(dj, less_vertex);
+
+        for (int i = 0; i < self->size_graph; ++i) {
+
+            if ( mh_get_quantity_elements(self->graph[less_vertex][i]) > 0 ){
+                less_arest = mh_extract_min(self->graph[less_vertex][i]);
+                dij_add_value_arest(dj, i, less_vertex, less_arest);
+            }
+        }
+
+    }
+    return dj;
 
 }
+
+Dijkstra *fldgp_dijkstra_find_less_distance(FlightsDigraph *self, int which_vertex){
+    return generate_dijkstra(self, which_vertex, if_less_then_in_dist);
+}
+Dijkstra *fldgp_dijkstra_find_less_duration(FlightsDigraph *self, int which_vertex){
+    return generate_dijkstra(self, which_vertex, if_less_then_in_duration);
+}
+
 
 

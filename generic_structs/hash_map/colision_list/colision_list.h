@@ -24,7 +24,7 @@ void colist_append_colision(ColisionList *self, KeyValue *new_value);
 void colist_remove_key_value(ColisionList *self, char *key);
 
 //get a element of the colisionlist with base in a key
-KeyValue *colist_get_key_value(ColisionList *self, char *key);
+KeyValue *colist_get_key_value(ColisionList *self, const char *key);
 
 //check if the list of the colision is void, return 1 case yes, 0 if don't
 int colist_is_void(ColisionList *self);

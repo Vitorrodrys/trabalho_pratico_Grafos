@@ -13,7 +13,7 @@ typedef struct ColisionList{
 
 }ColisionList;
 
-int _colist_find_index_element(ColisionList *self, char *key){
+int _colist_find_index_element(ColisionList *self, const char *key){
     KeyValue *aux = create_key_value(strdup(key), NULL);
     BaseValue *search_key = create_base_value(aux, (void *)destroy_kv, (void *)kv_str, (void *)kv_is_this_element, kv_get_tam());
 
@@ -56,7 +56,7 @@ void colist_remove_key_value(ColisionList *self, char *key){
     lkl_rm_element(self->colision_list, index_element);
 
 }
-KeyValue *colist_get_key_value(ColisionList *self, char *key){
+KeyValue *colist_get_key_value(ColisionList *self, const char *key){
 
     int index_element = _colist_find_index_element(self, key);
     if (index_element == -1){

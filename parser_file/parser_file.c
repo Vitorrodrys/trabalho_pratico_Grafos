@@ -9,6 +9,7 @@
 #include "../memory/memory.h"
 typedef struct CurrentFile{
 
+    short from_file;
     char *data;
     int current_char;
     size_t tam_file;
@@ -20,6 +21,7 @@ CurrentFile *create_parser_with_txt(char *str){
     new->data = str;
     new->current_char = 0;
     new->tam_file = strlen(str);
+    new->from_file = 0;
     return new;
 
 }
@@ -49,11 +51,12 @@ CurrentFile *create_parser(char *name_file){
     close(fd);
     new->tam_file= file_stat.st_size;
     new->current_char = 0;
+    new->from_file = 1;
     return new;
 }
 
 char pf_get_next_char(CurrentFile *self){
-    if ( self->current_char == self->tam_file){
+    if ( self->current_char >= self->tam_file){
         return -1;
     }
     self->current_char++;
@@ -61,7 +64,12 @@ char pf_get_next_char(CurrentFile *self){
 }
 char * pf_get_word_until_token(CurrentFile *self, char token){
 
-    int tam= strchr(self->data+self->current_char,token) -(self->data+self->current_char );
+    char *address_tk = strchr(self->data+self->current_char,token);
+    if ( !address_tk ){
+        return NULL;
+    }
+    int tam= address_tk -(self->data+self->current_char );
+
     if(tam<=0){
         return  NULL;
     }
@@ -119,8 +127,14 @@ int pf_is_end_file(CurrentFile *self){
     return self->current_char == self->tam_file;
 }
 
-void* destroy_parser(CurrentFile *self){
-    munmap(self->data, self->tam_file);
-    self->data = NULL;
+CurrentFile * destroy_parser(CurrentFile *self){
+    if ( self->from_file ) {
+        munmap(self->data, self->tam_file);
+    }else{
+        me_free(self->data);
+    }
+    memset(self, 0, sizeof(CurrentFile));
+    me_free(self);// me_free_memory(&self);
+    return NULL;
 }
 

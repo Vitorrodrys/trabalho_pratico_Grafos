@@ -6,7 +6,6 @@
 #include "../memory/memory.h"
 #include "graph_routes//graph_routes.h"
 #include "flights_digraph/flights_digraph.h"
-#include "../parser_file/parser_file.h"
 #include "../generic_structs/list/list.h"
 #include <math.h>
 
@@ -29,17 +28,36 @@ typedef struct GraphAeroport{
 Alias *gpae_get_alias(GraphAeroport *self){
     return self->alias_aeroports;
 }
+
+void discovery_from_and_to_vertex(GraphAeroport *self, char *from, char *to, int *from_vertex, int *to_vertex){
+    *from_vertex = alias_get_number_by_alias(self->alias_aeroports, from);
+    *to_vertex = alias_get_number_by_alias(self->alias_aeroports, to);
+}
+
+void _generate_searchs(GraphAeroport *self){
+
+    KeyValue *current_aeroport;
+    ItHash *iterator = re_create_iterator_regions(self->regions);
+    RespostSearch *respost_bfs;
+    current_aeroport = ith_next(iterator);
+    int from;
+    while (current_aeroport){
+        from = alias_get_number_by_alias(self->alias_aeroports, kv_get_key(current_aeroport));
+        respost_bfs = grt_bfs(self->routes, from);
+        ifa_set_bfs(kv_get_value(current_aeroport), respost_bfs);
+        current_aeroport = ith_next(iterator);
+    }
+    iterator = destructor_iterator(iterator);
+}
+
 void _read_fligth_graph(GraphAeroport *self, CurrentFile *file){
 
     pf_advance_to_word(file, "!fligths");
     pf_get_next_char(file);
     pf_get_next_char(file);
     char *str = NULL;
-    InfoFligth *arest = NULL;
     char *from = NULL;
     char *to = NULL;
-    InfoAeroports *from_aeroport = NULL;
-    InfoAeroports *to_aeroport = NULL;
     List *list_args = NULL;
 
     while (!pf_is_end_file(file)){
@@ -50,6 +68,12 @@ void _read_fligth_graph(GraphAeroport *self, CurrentFile *file){
 
         gpae_add_new_vertex(self, from);
         gpae_add_new_vertex(self, to);
+
+        if (!strcmp(to, "ABQ") && !strcmp(from, "MSY") ){
+#include <stdio.h>
+
+            printf("oi");
+        }
 
         gpae_add_new_fligth(
                 self,
@@ -63,6 +87,7 @@ void _read_fligth_graph(GraphAeroport *self, CurrentFile *file){
 
         list_args = destroy_list(list_args);
         pf_get_next_char(file);
+        me_free(str);
     }
 }
 
@@ -93,6 +118,7 @@ void _read_routes_graph(GraphAeroport *self, CurrentFile *file){
 
 
     }
+    routes = destroy_parser(routes);
 
 }
 
@@ -108,17 +134,19 @@ GraphAeroport *create_graph_aeroport(CurrentFile *file){
     };
 
     _read_routes_graph(new, file);
+    _generate_searchs(new);
     _read_fligth_graph(new, file);
     return new;
 }
 
 GraphAeroport *destroy_graph_aeroport(GraphAeroport *self){
 
-    self->alias_aeroports = destroy_alias(self->alias_aeroports);
-    self->fligths = destroy_fligths_digraph(self->fligths);
-    self->routes = destroy_grt(self->routes);
-    self->regions = destroy_regions(self->regions);
-    memset(self, 0, sizeof (GraphAeroport));
+    *self = (GraphAeroport){
+        .alias_aeroports = destroy_alias(self->alias_aeroports),
+        .fligths = destroy_fligths_digraph(self->fligths),
+        .routes = destroy_grt(self->routes),
+        .regions = destroy_regions(self->regions)
+    };
     me_free(self);
     return NULL;
 }
@@ -174,6 +202,8 @@ int gpae_add_new_rote(GraphAeroport *self, char *from, char *to){
 
 int gpae_add_new_fligth(GraphAeroport *self, char *from, char *to, int number_stops, int number_fligth, char *departure_time, char *arrival_time){
 
+
+
     int from_vertex = alias_get_number_by_alias(self->alias_aeroports, from);
     int to_vertex = alias_get_number_by_alias(self->alias_aeroports, to);
 
@@ -191,12 +221,13 @@ int gpae_add_new_fligth(GraphAeroport *self, char *from, char *to, int number_st
     if ( !from_info || !to_info ){
         return 0;
     }
-    double dist = calc_dist(
-            ifa_get_x_cord(from_info),
-            ifa_get_y_cord(from_info),
-            ifa_get_x_cord(to_info),
-            ifa_get_y_cord(to_info)
-    );
+    LinkedList *route_from_to = res_mount_way_by_vertex(ifa_get_result_bfs(from_info), to_vertex);
+
+    if ( route_from_to == NULL ){
+        return 0;
+    }
+    BaseValue *dist_kv = lkl_pop(route_from_to);
+    double dist = *bv_get_data_convert(dist_kv, double*);
 
     InfoFligth *arest = create_info_fligth(
             number_fligth,
@@ -205,6 +236,7 @@ int gpae_add_new_fligth(GraphAeroport *self, char *from, char *to, int number_st
             departure_time,
             arrival_time
             );
+
 
     fldgp_add_new_arest(self->fligths, from_vertex, to_vertex, arest);
     return 1;
@@ -251,23 +283,25 @@ char *gpae_get_alls_fligths_from(GraphAeroport *self, char *name_alias){
         return me_formatted_str("Don't was possible find fligths to %s!", name_alias);
     }
     LinkedList *list_result = fldgp_get_direct_fligths_from(self->fligths, from_vertex);
-
+    LinkedList *list_fligths_vertex;
     InfoFligth *arest;
     int *to;
     char *respost = me_formatted_str("fligths leaving from %s:\n\n", name_alias);
     char *aux;
     for (int i = 0; i < lkl_get_tam(list_result); ++i) {
+        list_fligths_vertex = lkl_get_data(list_result, i);
+        if ( lkl_get_tam(list_fligths_vertex) > 0 ){
+            aux = respost;
+            respost = me_formatted_str("%s\tto %s:\n", respost, alias_get_alias_by_number(self->alias_aeroports, i));
+            me_free(aux);
+        }
+        for (int j = 0; j < lkl_get_tam(list_fligths_vertex) ; ++j) {
 
-        if ( i%2 == 0 ){
-            to = lkl_get_data(list_result, i);
+            arest = lkl_get_data(list_fligths_vertex, j);
             aux = respost;
-            respost = me_formatted_str("%sto: %s\n", respost,alias_get_alias_by_number(self->alias_aeroports, *to));
+            respost = me_formatted_str("%s\t\t%s\n", respost,if_str(arest));
             me_free(aux);
-        }else{
-            arest = lkl_get_data(list_result, i);
-            aux = respost;
-            respost = me_formatted_str("%sInformations abouch the flight:\n%s\n\n", respost,if_str(arest));
-            me_free(aux);
+
         }
     }
     list_result = destroy_lkl(list_result);
@@ -285,11 +319,14 @@ char *gpae_get_route_from_to(GraphAeroport *self, char *alias_from, char *alias_
     }
     RespostSearch *respost_search = grt_bfs(self->routes, vertex_from);
     LinkedList *way_from_to = res_mount_way_by_vertex(respost_search, vertex_to);
-    char *respost = me_formatted_str("route: \n%s -> ", alias_get_alias_by_number(self->alias_aeroports, vertex_from));
+    int current_vertex;
+    BaseValue *unstacked=lkl_pop(way_from_to);
+    double dist = *bv_get_data_convert(unstacked, double*);
+    unstacked = destroy_base_value(unstacked);
+    char *respost = me_formatted_str("route: \ndist: %f\n%s -> ", dist,alias_get_alias_by_number(self->alias_aeroports, vertex_from));
     char *aux;
     respost_search = destroy_respost(respost_search);
-    int current_vertex;
-    BaseValue *unstacked;
+
     while (!lkl_is_void(way_from_to)){
 
         unstacked= lkl_pop(way_from_to);
@@ -304,5 +341,49 @@ char *gpae_get_route_from_to(GraphAeroport *self, char *alias_from, char *alias_
         me_free(aux);
     }
     return respost;
+
+}
+
+double gpae_get_distance_betwen_aeports(GraphAeroport *self, char *from, char *to){
+
+    int from_index = alias_get_number_by_alias(self->alias_aeroports, from);
+    int to_index = alias_get_number_by_alias(self->alias_aeroports, to);
+
+    if ( from_index == -1 || to_index == -1 ){
+        return 0.0;
+    }
+    return grt_get_dist_betwen_aeroports(self->routes, from_index, to_index);
+}
+
+char *gpae_get_aeroports_that_do_not_has_path(GraphAeroport *self, char *from){
+
+    int from_vertex = alias_get_number_by_alias(self->alias_aeroports, from);
+
+    if ( from_vertex == -1 ){
+        return NULL;
+    }
+    LinkedList *vertex_that_not_way = grt_get_vertex_that_not_has_way(self->routes, from_vertex);
+    int tam_list = lkl_get_tam(vertex_that_not_way);
+    int current_value;
+    char *respost = me_formatted_str("from aeroport %s don't is possible arrived in:\n", from);
+    char *aux;
+    for (int i = 0; i < tam_list-1; ++i) {
+        current_value = *(int *)lkl_get_data(vertex_that_not_way, i);
+        aux = respost;
+        respost = me_formatted_str("%s\t%s, ", respost, alias_get_alias_by_number(self->alias_aeroports, current_value));
+        me_free(aux);
+    }
+    aux = respost;
+    respost = me_formatted_str("%s, %s.", respost, alias_get_alias_by_number(self->alias_aeroports, tam_list-1));
+    vertex_that_not_way = destroy_lkl(vertex_that_not_way);
+    return respost;
+}
+
+char *gpae_find_less_fligth_betwen_aeroports(GraphAeroport *self, char *from, char *to){
+
+    int from_vertex, to_vertex;
+    discovery_from_and_to_vertex(self, from, to, &from_vertex, &to_vertex);
+
+    Dijkstra *dj = fldgp_dijkstra_find_less_distance(self->fligths, from_vertex);
 
 }

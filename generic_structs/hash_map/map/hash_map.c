@@ -5,20 +5,18 @@
 #include "hash_map.h"
 #include "../colision_list/colision_list.h"
 #include "../../../memory/memory.h"
-#include "../iterator/iterator_hash.h"
-#include <stdio.h>
 #include <string.h>
-#include "../../list/list.h"
 
 typedef struct Map{
 
     ColisionList **vector;
-    int tam_vector;
-    int (*f_hash)(const char *);
+    uint64_t tam_vector;
+    uint64_t (*f_hash)(const char *);
+    uint64_t quantity_keys;
 }Map;
 
-int hash(const char *string){
-    int sum = 0;
+uint64_t hash(const char *string){
+    uint64_t sum = 0;
     while (*string){
         sum += ((sum << 5) + sum) + *string;
         string++;
@@ -26,10 +24,10 @@ int hash(const char *string){
     return sum;
 }
 
-int map_get_index_key(Map *self, const char *key){
+uint64_t map_get_index_key(Map *self, const char *key){
     return self->f_hash(key) %self->tam_vector;
 }
-Map *create_map(int tam_vector, int (*f_hash)(const char *)){
+Map *create_map(uint64_t tam_vector, uint64_t (*f_hash)(const char *)){
     Map *new = me_memory_alloc(NULL, sizeof(Map));
     new->vector = me_memory_alloc(NULL, sizeof(ColisionList *)*tam_vector);
     for (int i = 0; i < tam_vector; ++i) {
@@ -37,6 +35,7 @@ Map *create_map(int tam_vector, int (*f_hash)(const char *)){
     }
     new->tam_vector = tam_vector;
     new->f_hash = f_hash?f_hash: hash;
+    new->quantity_keys = 0;
     return new;
 }
 Map *destroy_map(Map *self){
@@ -46,16 +45,18 @@ Map *destroy_map(Map *self){
     me_free(self->vector);
     self->tam_vector = 0;
     self->f_hash = 0;
+    self->quantity_keys = 0;
     me_free(self);
     return NULL;
 }
 
 void map_add_key(Map *self, KeyValue*key_value){
-    int index = map_get_index_key(self, kv_get_key(key_value));
+    uint64_t index = map_get_index_key(self, kv_get_key(key_value));
     colist_append_colision(self->vector[index], key_value);
+    self->quantity_keys++;
 }
 void map_att_key(Map *self, KeyValue *new_kv){
-    int index = map_get_index_key(self, kv_get_key(new_kv));
+    uint64_t index = map_get_index_key(self, kv_get_key(new_kv));
     KeyValue *kv = colist_get_key_value(self->vector[index], (char *)kv_get_key(new_kv));
     if ( kv == NULL ){
         map_add_key(self, new_kv);
@@ -65,16 +66,17 @@ void map_att_key(Map *self, KeyValue *new_kv){
     colist_append_colision(self->vector[index], new_kv);
 }
 void map_remove_key(Map *self, char *key){
-    int index = map_get_index_key(self, key);
+    uint64_t index = map_get_index_key(self, key);
     if (colist_is_void(self->vector[index]) ){
         return;
     }
     colist_remove_key_value(self->vector[index], key);
+    self->quantity_keys--;
 }
 
-void *map_get_value(Map *self, char *key){
+void *map_get_value(Map *self, const char *key){
 
-    int index = map_get_index_key(self, key);
+    uint64_t index = map_get_index_key(self, key);
 
     if (colist_is_void(self->vector[index]) ){
         return NULL;
@@ -90,7 +92,7 @@ void *map_get_value(Map *self, char *key){
 
 KeyValue *map_next(Map *self, ItHash *iterator){
 
-    int current_index_vector = ith_get_current_index_vector(iterator);
+    uint64_t current_index_vector = ith_get_current_index_vector(iterator);
     int current_index_sublist = ith_get_current_index_sublist(iterator);
 
     if ( current_index_vector >= self->tam_vector ){
@@ -98,7 +100,7 @@ KeyValue *map_next(Map *self, ItHash *iterator){
     }
     KeyValue *element = colist_get_element_by_index(self->vector[current_index_vector], current_index_sublist);
     if( element == NULL ){
-        int index_vector = current_index_vector+1;
+        uint64_t index_vector = current_index_vector+1;
         ith_set_current_index_vector(iterator, index_vector);
 
         while ( index_vector < self->tam_vector && colist_is_void(self->vector[index_vector])){
@@ -119,12 +121,11 @@ KeyValue *map_next(Map *self, ItHash *iterator){
 char* map_str(Map *self){
 
     ItHash *iter = create_iterator(self);
-    KeyValue *current_kv = ith_next(iter);;
+    KeyValue *current_kv = ith_next(iter);
     char *kv_string;
 
     char *string_kv = strdup("{\n\t\t");
     char *aux;
-    char *aux2;
     do {
 
         kv_string = kv_str(current_kv);
@@ -145,10 +146,35 @@ char* map_str(Map *self){
     return string_kv;
 
 }
+int map_eq(Map *self, Map *other){
+
+    if ( self == other){
+        return 1;
+    }
+    if ( self->quantity_keys != other->quantity_keys ){
+        return 0;
+    }
+    ItHash *it_self = create_iterator(self);
+    ItHash *it_other = create_iterator(other);
+    KeyValue *current_self = ith_next(it_self);
+    KeyValue *current_other = ith_next(it_other);
+
+    while ( current_self ){
+        if ( !kv_eq(current_self, current_other) ){
+            return 0;
+        }
+        current_other = ith_next(it_other);
+        current_self = ith_next(it_self);
+    }
+    return 1;
+
+}
 
 int map_is_void(Map *self){
     ItHash *it = create_iterator(self);
-    return ith_next(it) == NULL;
+    KeyValue *element = ith_next(it);
+    it = destructor_iterator(it);
+    return element == NULL;
 }
 
 

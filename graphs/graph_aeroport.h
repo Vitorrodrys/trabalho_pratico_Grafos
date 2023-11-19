@@ -5,6 +5,8 @@
 #ifndef TRABALHO_PRATICO_GRAFOS_GRAPH_AEROPORT_H
 #define TRABALHO_PRATICO_GRAFOS_GRAPH_AEROPORT_H
 #include "../parser_file/parser_file.h"
+#include "searchs/dijkstra.h"
+
 typedef struct Alias Alias;
 typedef struct GraphAeroport GraphAeroport;
 GraphAeroport *create_graph_aeroport(CurrentFile *file);
@@ -19,5 +21,8 @@ char *gpae_str(GraphAeroport *self);
 char *gpae_get_alls_fligths_from(GraphAeroport *self, char *name_alias);
 char *gpae_get_route_from_to(GraphAeroport *self, char *alias_from, char *alias_to);
 Alias *gpae_get_alias(GraphAeroport *self);
+double gpae_get_distance_betwen_aeports(GraphAeroport *self, char *from, char *to);
+char *gpae_get_aeroports_that_do_not_has_path(GraphAeroport *self, char *from);
+char *gpae_find_less_fligth_betwen_aeroports(GraphAeroport *self, char *from, char *to);
 
 #endif //TRABALHO_PRATICO_GRAFOS_GRAPH_AEROPORT_H

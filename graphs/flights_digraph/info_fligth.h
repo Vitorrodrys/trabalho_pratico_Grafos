@@ -20,6 +20,10 @@ char *if_str(InfoFligth *self);
 char *tm_str(TimeHour *self);
 InfoFligth * if_create_cp(InfoFligth *self);
 int if_eq(InfoFligth *self, InfoFligth *other);
-int if_bigger_then(InfoFligth *self, InfoFligth *other);
-int if_less_then(InfoFligth *self, InfoFligth *other);
+int if_less_then_in_dist(InfoFligth *self, InfoFligth*other);
+int if_less_then_in_duration(InfoFligth *self, InfoFligth *other);
+int if_bigger_then_in_dist(InfoFligth *self, InfoFligth *other);
+int if_bigger_then_in_duration(InfoFligth *self, InfoFligth *other);
+InfoFligth *if_sum_fligths(InfoFligth *self, InfoFligth *other);
+int ifa_get_number_fligth(InfoFligth *self);
 #endif //TRABALHO_PRATICO_GRAFOS_INFO_FLIGTH_H

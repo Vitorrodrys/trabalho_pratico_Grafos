@@ -19,4 +19,5 @@ int lkl_is_void(LinkedList *self);
 int lkl_get_index_element(LinkedList *self, BaseValue *data);
 int lkl_get_tam(LinkedList *self);
 BaseValue *lkl_pop(LinkedList *self);
+LinkedList *lkl_concat_lists(LinkedList *self, LinkedList *other);
 #endif //TRABALHO_PRATICO_GRAFOS_LINKED_LIST_H
