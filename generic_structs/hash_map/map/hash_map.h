@@ -3,7 +3,7 @@
 #include "../key_value/key_value.h"
 #include "../iterator/iterator_hash.h"
 
-#define DEFAULT_SIZE_VECTOR_COLISION 13
+#define DEFAULT_SIZE_VECTOR_COLISION 449
 #include <stdint.h>
 
 typedef struct Map Map;

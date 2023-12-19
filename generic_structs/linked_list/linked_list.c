@@ -136,3 +136,17 @@ LinkedList *lkl_concat_lists(LinkedList *self, LinkedList *other){
     }
     return list;
 }
+
+int lkl_eq(LinkedList *self, LinkedList *other){
+
+    if ( self->quantity != other->quantity ){
+        return 0;
+    }
+    return vt_eq(self->first, other->first);
+}
+char *lkl_str(LinkedList *self){
+    if ( self->quantity == 0 ){
+        return strdup("[ ]");
+    }
+    return vt_str(self->first);
+}

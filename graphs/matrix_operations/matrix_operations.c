@@ -4,7 +4,7 @@
 
 #include "matrix_operations.h"
 #include "../../memory/memory.h"
-#include <stdio.h>
+#include "../../string/string.h"
 
 void *mop_create_matrix(size_t tam_type, int tam){
 
@@ -27,34 +27,34 @@ void *mop_destroy_matrix(void **matrix, int tam){
 
 char *mop_str_matrix_int(double **matrix, int tam_matrix){
 
-    char *str_matrix = me_multiply_str("▬", tam_matrix*9-1);
+    char *str_matrix = str_multiply_str("▬", tam_matrix*9-1);
     char *aux = str_matrix;
-    str_matrix = me_concat_multiplies_str(3, "\n█", str_matrix, "█\n");
+    str_matrix = str_concat_multiplies(3, "\n█", str_matrix, "█\n");
     me_free(aux);
     char *aux2;
     for (int i = 0; i < tam_matrix; ++i) {
 
-        aux = me_formatted_str("█ %06.2f █", matrix[i][0]);
+        aux = str_formatted("█ %06.2f █", matrix[i][0]);
         aux2 = str_matrix;
-        str_matrix= me_concat_str(str_matrix, aux);
+        str_matrix= str_concat(str_matrix, aux);
         me_free(aux2);
         me_free(aux);
         for (int j = 1; j < tam_matrix-1; ++j) {
-            aux = me_formatted_str(" %06.2f █", matrix[i][j]);
+            aux = str_formatted(" %06.2f █", matrix[i][j]);
             aux2 = str_matrix;
-            str_matrix = me_concat_str(str_matrix, aux);
+            str_matrix = str_concat(str_matrix, aux);
             me_free(aux2);
             me_free(aux);
         }
-        aux = me_formatted_str(" %06.2f █\n",  matrix[i][tam_matrix-1]);
+        aux = str_formatted(" %06.2f █\n",  matrix[i][tam_matrix-1]);
         aux2 = str_matrix;
-        str_matrix= me_concat_str(str_matrix, aux);
+        str_matrix= str_concat(str_matrix, aux);
         me_free(aux2);
         me_free(aux);
     }
-    aux = me_multiply_str("▬", tam_matrix*9-1);
+    aux = str_multiply_str("▬", tam_matrix*9-1);
     aux2 = str_matrix;
-    str_matrix= me_concat_multiplies_str(4, str_matrix, "█",aux, "█");
+    str_matrix= str_concat_multiplies(4, str_matrix, "█",aux, "█");
     me_free(aux);
     me_free(aux2);
     return str_matrix;

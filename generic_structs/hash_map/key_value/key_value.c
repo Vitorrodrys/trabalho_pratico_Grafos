@@ -4,8 +4,7 @@
 
 #include "key_value.h"
 #include "../../../memory/memory.h"
-#include <string.h>
-#include <stdio.h>
+#include "../../../string/string.h"
 
 KeyValue *create_key_value(const char *key, BaseValue *value){
 
@@ -32,6 +31,7 @@ int kv_is_this_element(KeyValue *self, KeyValue *other){
     return !strcmp(self->key, other->key);
 }
 void *destroy_kv(KeyValue *self){
+
     me_free(self->key);
     self->value = destroy_base_value(self->value);
     me_free(self);
@@ -40,18 +40,18 @@ void *destroy_kv(KeyValue *self){
 char* kv_str(KeyValue *self){
     char *key = self->key;
     if (strchr(key, '"') == NULL){
-        key = me_formatted_str("\"%s\"", key);
-        char *result = me_formatted_str("%s:%s,", key, bv_in_str(self->value));
+        key = str_formatted("\"%s\"", key);
+        char *result = str_formatted("%s:%s,", key, bv_in_str(self->value));
         me_free(key);
         return result;
     }
-    return me_formatted_str("%s:%s, ", self->key,  bv_in_str(self->value));
+    return str_formatted("%s:%s, ", self->key,  bv_in_str(self->value));
 }
 
 
 int kv_eq(KeyValue *self, KeyValue *other){
 
-    if ( strcmp( self->key, other->key) ){
+    if ( strcmp( self->key, other->key) != 0 ){
         return 0;
     }
     if (bv_equals(self->value, other->value) ){

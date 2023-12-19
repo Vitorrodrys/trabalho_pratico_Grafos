@@ -4,7 +4,7 @@
 
 #include "regions.h"
 #include "../../memory/memory.h"
-#include <string.h>
+#include "../../string/string.h"
 #include <ctype.h>
 #include "info_aeroports.h"
 typedef struct Regions{
@@ -12,9 +12,9 @@ typedef struct Regions{
     int quantity_aeroports;
 }Regions;
 
-InfoAeroports *re_get_info_aeroport(Regions *self, char *alias){
+InfoAirport *re_get_info_aeroport(Regions *self, char *alias){
 
-    InfoAeroports *aeroport = map_get_value(self->aeroports, alias);
+    InfoAirport *aeroport = map_get_value(self->aeroports, alias);
     return aeroport;
 }
 
@@ -48,7 +48,7 @@ Regions *create_regions(CurrentFile *file){
     CurrentFile *regions_str = create_parser_with_txt(str);
     BaseValue *new_value;
     char *alias_region;
-    InfoAeroports *info;
+    InfoAirport *info;
     while (!pf_is_end_file(regions_str)){
         alias_region = _get_alias_region_in_file(regions_str);
         str = pf_get_word_until_token(regions_str, '\n');
@@ -74,7 +74,7 @@ Regions *create_regions(CurrentFile *file){
 }
 char *re_str(Regions *self){
     char *aeroports_in_str = map_str(self->aeroports);
-    char *regions_str = me_formatted_str("aeroport regions: %s,\nquantity aeroports:%d", aeroports_in_str, self->quantity_aeroports);
+    char *regions_str = str_formatted("aeroport regions: %s,\nquantity aeroports:%d", aeroports_in_str, self->quantity_aeroports);
     me_free(aeroports_in_str);
     return regions_str;
 }

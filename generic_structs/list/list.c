@@ -5,8 +5,8 @@
 #include "list.h"
 #include <stdarg.h>
 #include <stdio.h>
-#include <string.h>
 #include "../../memory/memory.h"
+#include "../../string/string.h"
 
 typedef struct List{
     BaseValue **data;
@@ -91,7 +91,7 @@ List *li_break_str_in_list(char *str, char *tok){
     char *token = strtok(str, tok);
     BaseValue *aux;
     while (token){
-        aux = create_base_value(strdup(token), simple_destructor, (void *)me_str_str, (void *)strcmp, sizeof(char));
+        aux = create_base_value(strdup(token), (void *)destroy_str, (void *)str_str, (void *)strcmp, sizeof(char));
         li_append(list, aux);
         token = strtok(NULL, tok);
     }
@@ -112,4 +112,25 @@ void li_insert(List *self, BaseValue *value, int index){
         self->data[i] = self->data[i-1];
     }
     self->data[index] = value;
+}
+
+char *li_str(List *self){
+
+    if ( self->current_size == 0){
+        return strdup("[ ]");
+    }
+    char *str = strdup("[ ");
+    char *aux;
+    char *element_str;
+    for (int i = 0; i < self->current_size-1; ++i) {
+        aux = str;
+        element_str = bv_in_str(self->data[i]);
+        str = str_formatted("%s %s, ", str, element_str);
+        me_free_several_objects(2, (void *)&aux, (void *)&element_str);
+    }
+    aux = str;
+    element_str = bv_in_str(self->data[self->current_size-1]);
+    str = str_formatted("%s %s ]", str, element_str);
+    me_free_several_objects(2, &aux, &element_str);
+    return str;
 }

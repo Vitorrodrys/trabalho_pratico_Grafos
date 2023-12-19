@@ -3,13 +3,27 @@
 //
 
 #include "graph_routes.h"
-#include "../regions/regions.h"
-#include "../alias/alias.h"
 #include "../../memory/memory.h"
-#include "../../parser_file/parser_file.h"
-#include "../../generic_structs/list/list.h"
-#include <stdio.h>
+#include "../../string/string.h"
 #include "../matrix_operations/matrix_operations.h"
+#include "../searchs/respost_dfs.h"
+#include "../searchs/color.h"
+
+//functions that only should be public by graph_routes
+
+    //DFS functions that only should be public by graph_routes
+    /**
+     * create a instance of RespostSearchDFS
+     * @param which_vertex the vertex that the search will starts
+     * @param quantity_vertex_graph the quantity of vertex in a graph
+     * @param ignored_vertex: a vertex that should be ignored by the search, pass NOT_IGNORE_ANY_VERTICES to ignore no vertices
+     * @return a new instance of RespostSearchDFS
+     */
+    RespostSearchDFS *create_respost_dfs(int which_vertex, int quantity_vertex_graph, int ignored_vertex);
+
+
+//end
+
 
 typedef struct GraphRoutes{
 
@@ -17,9 +31,7 @@ typedef struct GraphRoutes{
     double **graph;
     int quantity_edge;
 
-
 }GraphRoutes;
-
 
 
 
@@ -101,24 +113,24 @@ char* grt_str(GraphRoutes *self){
     return mop_str_matrix_int(self->graph, self->size_graph);
 }
 
-RespostSearch *grt_bfs(GraphRoutes *self, int from){
+RespostSearchBFS *grt_bfs(GraphRoutes *self, int from){
 
     if ( from >= self->size_graph ){
         return NULL;
     }
-    RespostSearch *respost = create_respost(self->size_graph, from);
+    RespostSearchBFS *respost = create_respost(self->size_graph, from);
 
-    while ( !res_queue_is_void(respost) ){
+    while ( !resbfs_queue_is_void(respost) ){
 
-        from = res_get_next_vertex_queue(respost);
+        from = resbfs_get_next_vertex_queue(respost);
 
         for (int i = 0; i < self->size_graph; ++i) {
             if ( !self->graph[from][i] ){
                 continue;
             }
 
-            if (res_elem_still_not_visited(respost, i) ){
-                res_to_visite_element(respost, from, i, self->graph[from][i]);
+            if (resbfs_elem_still_not_visited(respost, i) ){
+                resbfs_to_visite_element(respost, from, i, self->graph[from][i]);
             }
         }
     }
@@ -135,18 +147,18 @@ LinkedList *grt_get_vertex_that_not_has_way(GraphRoutes *self, int from){
     if (from > self->size_graph){
         return NULL;
     }
-    RespostSearch *bfs_respost = grt_bfs(self, from);
+    RespostSearchBFS *bfs_respost = grt_bfs(self, from);
     BaseValue *current_element_in_list;
     LinkedList *vertex_that_not_has_way = create_linked_list();
     for (int i = 0; i < self->size_graph; ++i) {
 
         if ( i != from ){
-            if ( !res_exist_a_way_to_vertex(bfs_respost, i) ){
+            if ( !resbfs_exist_a_way_to_vertex(bfs_respost, i) ){
 
                 current_element_in_list = create_base_value(
                         create_int(i),
                         (void *)destroy_int,
-                        (void *)me_int_to_str,
+                        (void *) me_int_to_str,
                         (void *)me_eq_int,
                         sizeof(int)
                         );
@@ -157,36 +169,89 @@ LinkedList *grt_get_vertex_that_not_has_way(GraphRoutes *self, int from){
     bfs_respost = destroy_respost(bfs_respost);
     return vertex_that_not_has_way;
 }
-LinkedList *grt_get_vertex_that_not_has_way_if_a_vertex_not_exist(GraphRoutes *self, int from, int vertex_that_not_exist){
 
-    if (from > self->size_graph){
-        return NULL;
+RespostSearchDFS *grt_dfs(GraphRoutes *self, int from, int ignored_vertex) {
+
+
+    RespostSearchDFS *dfs_search = create_respost_dfs(from, self->size_graph, ignored_vertex);
+
+    int current_vertex;
+    int before_current_vertex = -1;
+    int i;
+    while (!resdfs_stack_is_void(dfs_search)) {
+        current_vertex = resdfs_get_last_vertex_stack(dfs_search);
+
+        for (i = before_current_vertex + 1; i < self->size_graph; ++i) {
+
+            if (self->graph[current_vertex][i] && !resdfs_exist_element_in_stack(dfs_search, i) && !resdfs_element_already_visited(dfs_search, i)) {
+                resdfs_to_visite_vertex(dfs_search, i, current_vertex, self->graph[current_vertex][i]);
+                before_current_vertex = -1;
+                break;
+            }
+
+        }
+        if (i >= self->size_graph)
+            before_current_vertex = resdfs_pop_vertex(dfs_search);
+
     }
-    RespostSearch *bfs_respost = grt_bfs(self, from);
-    BaseValue *current_element_in_list;
-    LinkedList *vertex_that_not_has_way = create_linked_list();
+    return dfs_search;
+}
+
+/**
+ * question corresponding the practice of coloring
+ * @param self
+ * @return Colors of filled in graph
+ */
+DistColors *grt_coloring(GraphRoutes *self){
+
+    DistColors *dist_colors = create_dist_colors(self->size_graph);
+
+    int color_that_will_use = 0;
+
+    int *disponible_colors = NULL;
     for (int i = 0; i < self->size_graph; ++i) {
+        color_that_will_use = 0;
+        disponible_colors = dc_create_vector_of_avaible_colors(dist_colors);
 
-        if ( i != from ){
-            //if before after a path and retired the vertex not has more path, then this is a vertex
-            //that is affected by the retired of vertex
-            if (
-                    res_exist_a_way_to_vertex(bfs_respost, i) &&
-                    res_check_if_middle_path_contains_vertex(bfs_respost, vertex_that_not_exist,i)
-                    ){
-
-                current_element_in_list = create_base_value(
-                        create_int(i),
-                        (void *)destroy_int,
-                        (void *)me_int_to_str,
-                        (void *)me_eq_int,
-                        sizeof(int)
-                );
-                lkl_append(vertex_that_not_has_way, current_element_in_list);
+        for (int j = 0; j < self->size_graph; ++j) {
+            if ( self->graph[i][j] && dc_get_color_vertex(dist_colors, j) != -1 ){
+               disponible_colors[dc_get_color_vertex(dist_colors, j)] = 0;
             }
         }
-    }
-    bfs_respost = destroy_respost(bfs_respost);
-    return vertex_that_not_has_way;
+        while ( color_that_will_use < dc_get_quantity_colors_usage(dist_colors) && !disponible_colors[color_that_will_use] ){
+            color_that_will_use++;
+        }
 
+        dc_set_color_vertex(dist_colors, i, color_that_will_use);
+        me_free(disponible_colors);
+
+    }
+    return dist_colors;
+}
+
+Prim* grt_prim(GraphRoutes *self){
+
+    Prim *prim = create_prim(self->size_graph, 0);
+
+    int current_vertex;
+    while ( !prim_mst_is_complete(prim) ){
+
+        current_vertex = prim_get_vertex_connect_with_smallest_edge(prim);
+        for (int i = 0; i < self->size_graph; ++i) {
+
+            if ( self->graph[current_vertex][i] && prim_vertice_in_mst(prim, i) && prim_this_edge_is_smallest(prim, self->graph[current_vertex][i], i) ){
+                prim_swap_value_edge(prim, i, current_vertex, self->graph[current_vertex][i]);
+
+            }
+        }
+
+    }
+    return prim;
+
+
+
+}
+
+int grt_get_tam(GraphRoutes *self){
+    return self->size_graph;
 }

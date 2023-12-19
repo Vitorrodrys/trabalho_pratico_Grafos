@@ -19,4 +19,6 @@ void *vt_get_data(Vertex *self, int index);
 void vt_remove_element_lk(Vertex **self, Vertex **last, int index, Vertex *(*destroyer)(Vertex *self));
 Vertex *vt_add_element(Vertex *self, BaseValue *data, int index);
 BaseValue *vt_get_base_value(Vertex *self);
+int vt_eq(Vertex *self, Vertex *other);
+char *vt_str(Vertex *self);
 #endif //TRABALHO_PRATICO_GRAFOS_VERTEX_H

@@ -1,1 +1,0 @@
-usar o algoritimo de prim no topico 5.a para fazer a geração do caminho minimo de um aeroporto para o outro

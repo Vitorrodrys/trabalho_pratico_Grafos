@@ -5,12 +5,8 @@
 #include "colision_list.h"
 #include "../../linked_list/linked_list.h"
 #include "../../../memory/memory.h"
-#include "../key_value/key_value.h"
 typedef struct ColisionList{
-
     LinkedList *colision_list;
-
-
 }ColisionList;
 
 int _colist_find_index_element(ColisionList *self, const char *key){
@@ -31,7 +27,6 @@ ColisionList *create_colision_list(){
 }
 
 ColisionList *destroy_colision_list(ColisionList *self){
-
     self->colision_list = destroy_lkl(self->colision_list);
     me_free(self);
     return NULL;

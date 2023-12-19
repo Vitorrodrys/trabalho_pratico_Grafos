@@ -5,18 +5,47 @@
 #ifndef TRABALHO_PRATICO_GRAFOS_INFO_AEROPORTS_H
 #define TRABALHO_PRATICO_GRAFOS_INFO_AEROPORTS_H
 
-#include "../searchs/repost_search.h"
+#include "../searchs/respost_bfs.h"
 
-typedef struct InfoAeroports InfoAeroports;
-int ifa_get_x_cord(InfoAeroports *self);
-int ifa_get_y_cord(InfoAeroports *self);
-char *ifa_get_city(InfoAeroports *self);
-char *ifa_get_region(InfoAeroports *self);
-InfoAeroports *destroy_info_aeroports(InfoAeroports *self);
-RespostSearch *ifa_get_result_bfs(InfoAeroports *self);
-InfoAeroports *create_info_aeroport(char *str);
-char * info_aeroports_str(InfoAeroports *self);
-int info_aeroports_eq(InfoAeroports *self, InfoAeroports *other);
+typedef struct InfoAirport InfoAirport;
+//TAD that stored all complete information about an airport
+
+
+
+
+
+
+
+
+
+/**
+ * parser a string and create a new instance of InfoAirport
+ * @param str: string that should be parsed
+ * @return new instance of InfoAirport
+ */
+InfoAirport *create_info_aeroport(char *str);
+InfoAirport *destroy_info_aeroports(InfoAirport *self);
+
+/**
+ * retrieve the geographic cord X of the airport
+ * @param self: Instance of InfoAeroport that want get X cord
+ * @return the number that representing the X cord of this airport
+ */
+int ifa_get_x_cord(InfoAirport *self);
+
+
+
+
+/**
+ * retrieve the geographic cord Y of the airport
+ * @param self: Instance of InfoAeroport that want get Y cord
+ * @return the number that representing the Y cord of this airport
+ */
+int ifa_get_y_cord(InfoAirport *self);
+char *ifa_get_city(InfoAirport *self);
+char *ifa_get_region(InfoAirport *self);
+
+char * info_aeroports_str(InfoAirport *self);
+int info_aeroports_eq(InfoAirport *self, InfoAirport *other);
 size_t ifa_get_tam();
-void ifa_set_bfs(InfoAeroports *self, RespostSearch *new_bfs);
 #endif //TRABALHO_PRATICO_GRAFOS_INFO_AEROPORTS_H

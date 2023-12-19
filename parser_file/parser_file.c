@@ -26,7 +26,7 @@ CurrentFile *create_parser_with_txt(char *str){
 
 }
 
-CurrentFile *create_parser(char *name_file){
+CurrentFile *create_parser(const char *name_file){
 
     CurrentFile *new = me_memory_alloc(NULL, sizeof(CurrentFile));
 

@@ -18,4 +18,5 @@ int li_get_tam(List *self);
 List *li_break_str_in_list(char *str, char *tok);
 void li_swap_elements(List *self, int index1, int index2);
 void li_insert(List *self, BaseValue *value, int index);
+char *li_str(List *self);
 #endif /* LIST_H */

@@ -5,7 +5,7 @@
 #include "hash_map.h"
 #include "../colision_list/colision_list.h"
 #include "../../../memory/memory.h"
-#include <string.h>
+#include "../../../string/string.h"
 
 typedef struct Map{
 
@@ -41,6 +41,7 @@ Map *create_map(uint64_t tam_vector, uint64_t (*f_hash)(const char *)){
 Map *destroy_map(Map *self){
     for (int i = 0; i < self->tam_vector; ++i) {
         self->vector[i] = destroy_colision_list(self->vector[i]);
+
     }
     me_free(self->vector);
     self->tam_vector = 0;
@@ -52,6 +53,10 @@ Map *destroy_map(Map *self){
 
 void map_add_key(Map *self, KeyValue*key_value){
     uint64_t index = map_get_index_key(self, kv_get_key(key_value));
+    KeyValue *kv = colist_get_key_value(self->vector[index], kv_get_key(key_value));
+    if ( kv ){
+        return;
+    }
     colist_append_colision(self->vector[index], key_value);
     self->quantity_keys++;
 }
@@ -130,7 +135,7 @@ char* map_str(Map *self){
 
         kv_string = kv_str(current_kv);
         aux = string_kv;
-        string_kv = me_concat_multiplies_str(3,string_kv, kv_string, "\n\t\t");
+        string_kv = str_concat_multiplies(3,string_kv, kv_string, "\n\t\t");
         me_free(kv_string);
         me_free(aux);
 
@@ -141,7 +146,7 @@ char* map_str(Map *self){
 
     iter = destructor_iterator(iter);
     aux = string_kv;
-    string_kv =me_concat_str(string_kv, "\n\t}");
+    string_kv =str_concat(string_kv, "\n\t}");
     me_free(aux);
     return string_kv;
 
@@ -150,6 +155,10 @@ int map_eq(Map *self, Map *other){
 
     if ( self == other){
         return 1;
+    }
+    if ( self->f_hash != other->f_hash || self->tam_vector != other->tam_vector){
+        return 0;//If the hash functions are different, it is not possible to compare the two maps because the mapping was made by different functions. The same applies to the vector size.
+
     }
     if ( self->quantity_keys != other->quantity_keys ){
         return 0;

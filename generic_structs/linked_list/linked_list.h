@@ -8,6 +8,8 @@
 
 typedef struct LinkedList LinkedList;
 
+
+size_t lkl_get_size();
 LinkedList *create_linked_list();
 LinkedList *destroy_lkl(LinkedList *self);
 int lkl_insert_element(LinkedList *self, BaseValue *data, int index);
@@ -20,4 +22,6 @@ int lkl_get_index_element(LinkedList *self, BaseValue *data);
 int lkl_get_tam(LinkedList *self);
 BaseValue *lkl_pop(LinkedList *self);
 LinkedList *lkl_concat_lists(LinkedList *self, LinkedList *other);
+int lkl_eq(LinkedList *self, LinkedList *other);
+char *lkl_str(LinkedList *self);
 #endif //TRABALHO_PRATICO_GRAFOS_LINKED_LIST_H

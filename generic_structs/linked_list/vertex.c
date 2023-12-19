@@ -4,6 +4,7 @@
 
 #include "vertex.h"
 #include "../../memory/memory.h"
+#include "../../string/string.h"
 
 Vertex *create_vertex(BaseValue *dado, Vertex *next){
 
@@ -91,4 +92,53 @@ Vertex *vt_add_element(Vertex *self, BaseValue *data, int index){
     self->next = create_vertex(data, self->next);
     return self_cp;
 }
+int vt_eq(Vertex *self, Vertex *other){
 
+    BaseValue *current_self;
+    BaseValue *current_other;
+
+    while (self != NULL){
+        current_self = self->data;
+        current_other = other->data;
+
+        if ( !bv_equals(current_self, current_other) ){
+            return 0;
+        }
+        self = vt_get_next(self);
+        other = vt_get_next(other);
+
+    }
+    if ( self != other ){
+        //if self and other don't was equals to NULL, then the lists are of size differents
+        return 0;
+    }
+    return 1;
+}
+
+char *vt_str(Vertex *self){
+
+    char *bv_str = bv_in_str(self->data);
+    char *string = str_formatted("[ %s", bv_str);
+    char *aux;
+    me_free(bv_str);
+    self = vt_get_next(self);
+    if ( self == NULL ){
+        aux = string;
+        string = str_formatted("%s ]", string);
+        me_free(aux);
+        return string;
+    }
+    while ( self->next ){
+
+        bv_str = bv_in_str(self->data);
+        aux = string;
+        string = str_formatted("%s, %s", string, bv_str);
+        me_free_several_objects(2, &bv_str, &aux);
+        self = vt_get_next(self);
+    }
+    bv_str = bv_in_str(self->data);
+    aux = string;
+    string = str_formatted("%s, %s ]", string, bv_str);
+    me_free_several_objects(2, &bv_str, &aux);
+    return string;
+}

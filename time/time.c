@@ -5,7 +5,6 @@
 #include "time.h"
 #include "calendar.h"
 #include "../memory/memory.h"
-#include "ctype.h"
 #include <stdio.h>
 typedef struct TimeHour{
     time_t in_seconds;

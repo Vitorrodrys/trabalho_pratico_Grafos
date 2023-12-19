@@ -4,6 +4,7 @@
 
 #include "calendar.h"
 #include "../memory/memory.h"
+#include "../string/string.h"
 
 typedef struct Calendar{
     int seg;
@@ -46,7 +47,7 @@ long calend_to_seconds(Calendar *self){
 }
 
 char *calend_str(Calendar *self){
-    return me_formatted_str("%d days, %02d:%02d:%02d", self->day, self->hour, self->min, self->seg);
+    return str_formatted("%d days, %02d:%02d:%02d", self->day, self->hour, self->min, self->seg);
 }
 
 Calendar * calend_cp(Calendar *self){
